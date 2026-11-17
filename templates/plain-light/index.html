@@ -13,7 +13,13 @@
   h1 { font-size: clamp(28px, 5.6vw, 88px); line-height: 1.05; font-weight: 400; max-width: 18ch; }
   h2 { font-size: clamp(22px, 4vw, 60px); line-height: 1.1; font-weight: 400; max-width: 22ch; }
   p { font-family: system-ui, sans-serif; font-size: clamp(14px, 2vw, 30px); color: var(--muted); max-width: 38ch; }
-  .tag { font-family: system-ui, sans-serif; font-size: clamp(10px, 1.2vw, 18px); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+  ul, ol { font-family: system-ui, sans-serif; font-size: clamp(14px, 2vw, 30px); color: var(--muted); padding-left: 1.2em; display: grid; gap: 1vh; }
+  li b, .team b { color: var(--ink); }
+  .team { display: flex; gap: 4vw; flex-wrap: wrap; font-family: system-ui, sans-serif; font-size: clamp(14px, 2vw, 30px); }
+  .team span { display: block; color: var(--muted); font-size: .75em; }
+  em { font-style: normal; color: var(--accent); }
+  .screen { border: 1px solid #d9dbd3; border-radius: 12px; padding: 6vh 4vw; }
+  .tag { font-family: system-ui, sans-serif; max-width: none; font-size: clamp(10px, 1.2vw, 18px); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
 </style>
 </head>
 <body>

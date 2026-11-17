@@ -67,6 +67,11 @@ export interface Comment {
   status: 'open' | 'applied';
   createdAt: number;
   appliedIn?: string;
+  /**
+   * Prepared answer for the example deck: text replacements that demo mode performs for this comment.
+   * Real providers ignore it and read the comment text.
+   */
+  demo?: { old: string; new: string }[];
 }
 
 export type EditOp =

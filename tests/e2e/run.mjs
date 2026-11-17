@@ -54,7 +54,8 @@ try {
   /* 1. Template -> editor */
   await page.goto(`http://localhost:${PORT}/`);
   await shot('01-start.png');
-  await page.getByRole('button', { name: /Three-minute pitch/ }).click();
+  await page.locator('.template', { hasText: 'Three-minute pitch' }).click();
+  await page.getByRole('button', { name: /Skip the wizard/ }).click();
   await page.locator('.film').nth(6).waitFor({ timeout: 15000 });
   check('template opens with 7 detected slides', (await page.locator('.film').count()) === 7);
   await page.waitForFunction(() => document.querySelectorAll('.film-title')[1]?.textContent === 'Problem', null, { timeout: 15000 }).catch(() => {});
@@ -95,7 +96,59 @@ try {
   check('restoring v1 adds v3 and brings the old text back', restored.includes('47 minutes'), restored);
   await shot('04-versions.png');
 
-  /* 5. Optional: a real scripted deck (slides built in JavaScript) */
+  /* 5. Example deck: dummy data, a history and comments that demo mode can answer */
+  await page.goto(`http://localhost:${PORT}/`);
+  await page.getByRole('button', { name: 'Try the example deck' }).click();
+  await page.locator('.film').nth(6).waitFor({ timeout: 20000 });
+  check('example opens with 7 slides and 4 open comments', (await page.locator('.film').count()) === 7 && /Review \(4\)/.test(await page.getByRole('tab', { name: /Review/ }).innerText()));
+  check('example starts at v2 with a version to go back to', /v2/.test(await page.locator('.version-chip').innerText()));
+  await page.waitForTimeout(800);
+  await shot('07-example.png');
+  await page.getByRole('button', { name: 'Apply round' }).click();
+  await page.locator('.result').waitFor({ timeout: 30000 });
+  const exampleCheck = (await page.locator('.result-check').innerText()).trim();
+  check('example round changes exactly the four commented slides', exampleCheck === 'Changed: slides 1, 3, 5, 7. Every other slide is unchanged.', exampleCheck);
+  await page.locator('.film').nth(0).click();
+  await page.waitForFunction(() => document.querySelector('.position b')?.textContent === '1');
+  const exampleHook = await page.frameLocator('iframe[title="Deck preview"]').locator('h1').innerText();
+  check('example: prepared answer is on the slide', exampleHook.includes('52 minutes'), exampleHook);
+  await page.waitForTimeout(800);
+  await shot('08-example-applied.png');
+
+  /* 6. Start wizard: length, jury, storyline, content, AI */
+  await page.goto(`http://localhost:${PORT}/`);
+  await page.locator('.template', { hasText: 'Three-minute pitch' }).click();
+  await page.getByText('5 minutes', { exact: true }).click();
+  check('wizard: 5 minutes plans 9 slides', /^9 slides/.test((await page.locator('.wiz-plan-head').innerText()).trim()), await page.locator('.wiz-plan-head').innerText());
+  await shot('09-wizard-length.png');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.locator('#crit-business').check();
+  check('wizard: ticking a criterion adds its slide to the plan', (await page.locator('.wiz-plan').innerText()).includes('Business'));
+  await shot('10-wizard-jury.png');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.getByText('Demo first', { exact: true }).click();
+  const order = await page.locator('.wiz-plan li').allInnerTexts();
+  check('wizard: storyline changes the order', /Demo/.test(order[1] ?? ''), order.join(' > ').replace(/\n/g, ' '));
+  await shot('11-wizard-storyline.png');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.fill('#wiz-project', 'WardRadar');
+  await shot('12-wizard-content.png');
+  await page.getByRole('button', { name: 'Next' }).click();
+  await page.locator('#wiz-provider-claude').check();
+  check('wizard: the API key is asked for where the provider is chosen', await page.locator('#wiz-key').isVisible());
+  await shot('13-wizard-ai.png');
+  await page.locator('#wiz-provider-demo').check();
+  await page.getByRole('button', { name: 'Create deck', exact: true }).click();
+  await page.locator('.film').nth(8).waitFor({ timeout: 20000 });
+  check('wizard creates a 9-slide deck', (await page.locator('.film').count()) === 9);
+  await page.waitForFunction(() => document.querySelectorAll('.film-title')[1]?.textContent === 'Demo', null, { timeout: 15000 }).catch(() => {});
+  check('wizard deck follows the chosen storyline', (await page.locator('.film-title').nth(1).textContent()) === 'Demo');
+  const wizardHook = await page.frameLocator('iframe[title="Deck preview"]').locator('h1').innerText();
+  check('wizard deck carries the content that was typed', wizardHook.includes('WardRadar'), wizardHook);
+  await page.waitForTimeout(800);
+  await shot('14-wizard-deck.png');
+
+  /* 7. Optional: a real scripted deck (slides built in JavaScript) */
   if (extraDeck) {
     await page.goto(`http://localhost:${PORT}/`);
     await page.setInputFiles('#upload-files', extraDeck);

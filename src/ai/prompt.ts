@@ -11,6 +11,7 @@ How to work:
 - Some decks build their slides in JavaScript instead of one HTML element per slide. Find the slide by its number and title in that code and edit it there.
 - Do not invent facts, numbers or names. When a comment needs information you do not have, put a clearly marked placeholder such as [TODO: customer quote] and mention it in your summary.
 - A comment on the whole deck applies to every slide it concerns.
+- When deckhack.json has a "brief", it states the pitch length, the seconds available per slide, the storyline and the jury criteria. Keep the amount of text on a slide sayable in that time, and do not edit the brief itself.
 
 When you are done, answer with a short summary of what you changed, slide by slide, in the language the comments are written in. Plain sentences, no headings.`;
 

@@ -203,3 +203,38 @@ input[type="url"], input[type="password"], input:not([type]), select, textarea {
 @media (prefers-reduced-motion: no-preference) {
   .btn, .film { transition: border-color .12s ease, background-color .12s ease; }
 }
+
+/* ---------- start wizard ---------- */
+.ai-chip { display: inline-flex; align-items: center; gap: 7px; font-size: 12.5px; }
+.ai-chip .dot { width: 8px; height: 8px; border-radius: 50%; background: var(--muted); }
+.ai-chip .dot.ready { background: var(--good); }
+.dialog.wide { width: min(760px, calc(100vw - 32px)); }
+.wiz-steps { display: flex; gap: 4px; flex-wrap: wrap; border-bottom: 1px solid var(--line); padding-bottom: 10px; }
+.wiz-steps button { border: 0; background: none; cursor: pointer; display: inline-flex; align-items: center; gap: 6px; padding: 4px 8px; border-radius: var(--radius); color: var(--muted); font-size: 13px; }
+.wiz-steps span { font-family: var(--mono); font-size: 11.5px; width: 20px; height: 20px; border-radius: 50%; border: 1px solid var(--line); display: grid; place-items: center; }
+.wiz-steps .current button { color: var(--ink); font-weight: 600; background: var(--action-soft); }
+.wiz-steps .current span { background: var(--action); border-color: var(--action); color: var(--action-ink); }
+.wiz-steps .done span { border-color: var(--action); color: var(--action); }
+.wiz { display: grid; gap: 14px; }
+.wiz-body { display: grid; gap: 10px; }
+.wiz h3 { margin: 0; font-size: 15px; }
+.wiz label { font-size: 13px; }
+.wiz input:not([type="radio"]):not([type="checkbox"]), .wiz textarea, .wiz select {
+  width: 100%; border: 1px solid var(--line); background: var(--raised); border-radius: var(--radius); padding: 6px 9px;
+}
+.wiz textarea { resize: vertical; }
+.wiz-options { display: grid; gap: 8px; }
+.wiz-options.two { grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); }
+.wiz-option { display: grid; grid-template-columns: auto 1fr; column-gap: 9px; row-gap: 2px; align-items: start; border: 1px solid var(--line); background: var(--raised); border-radius: var(--radius); padding: 9px 11px; cursor: pointer; }
+.wiz-option input { grid-row: span 2; margin-top: 3px; }
+.wiz-option span { color: var(--muted); font-size: 12.5px; grid-column: 2; }
+.wiz-option.sel { border-color: var(--action); background: var(--action-soft); }
+.wiz-fields { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 10px 14px; }
+.wiz-fields > div { display: grid; gap: 3px; align-content: start; min-width: 0; }
+.wiz-fields .full { grid-column: 1 / -1; }
+.wiz-plan { border: 1px dashed var(--line); border-radius: var(--radius); padding: 9px 11px; display: grid; gap: 7px; }
+.wiz-plan-head { font-size: 12.5px; color: var(--muted); }
+.wiz-plan-head b { color: var(--ink); font-family: var(--mono); }
+.wiz-plan ol { display: flex; flex-wrap: wrap; gap: 6px; }
+.wiz-plan li { display: inline-flex; align-items: center; gap: 6px; border: 1px solid var(--line); background: var(--raised); border-radius: 4px; padding: 2px 8px; font-size: 12.5px; }
+.wiz-foot { border-top: 1px solid var(--line); padding-top: 12px; }

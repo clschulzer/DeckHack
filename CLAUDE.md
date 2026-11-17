@@ -16,7 +16,7 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 ## Architektur in Kürze
 
 - `src/core/`: Deck-Modell, Edits, Vorschau-Bundler, Bridge im iframe, Versionen (IndexedDB)
-- `src/sources/`: Upload, GitHub (laden und committen), Vorlagen
+- `src/sources/`: Upload, GitHub (laden und committen), Vorlagen, Start-Wizard (`wizard.ts`), Beispiel-Deck mit Dummy-Daten (`example.ts`)
 - `src/ai/`: Provider-Schnittstelle, Claude, Demo-Modus, Review-Runde mit Prüfung
 - `src/ui/`: React-Oberfläche. Einstieg: `src/main.tsx` -> `ui/App.tsx`
 - `docs/ARCHITECTURE.md`: Entwurf mit Begründungen, Fahrplan (M1 bis M3) und Risiken
@@ -31,6 +31,8 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 
 - `src/core/bridge.inframe.js` ist bewusst ES5-artiges JavaScript ohne Imports: Es wird als Text (`?raw`) in die Vorschau injiziert. Der Platzhalter `__PC_CONFIG__` darf nur einmal im File stehen, auch nicht in Kommentaren.
 - Die Vorschau hat einen opaken Origin: kein `localStorage`, kein `history.replaceState`. Die Bridge enthält Shims dafür. Neue Browser-APIs, die Decks brauchen, dort ergänzen.
+- Der Wizard ersetzt nur den Inhalt von `<main>` der Vorlage. Vorlagen brauchen daher ein `<main>` und Styles für `.slide`, `.eyebrow`/`.tag`, `.lede`, `.points`, `.steps`, `.team`, `.screen`.
+- `src/sources/example.ts` ersetzt feste Texte aus dem Wizard-Ergebnis. Ändert sich der Wortlaut in `wizard.ts`, schlägt der Unit-Test „example deck“ fehl: dann die Texte dort nachziehen.
 - `templates/` wird zur Build-Zeit als Text eingebunden, daher nur Textdateien.
 - Claude-Aufrufe und GitHub-Commits sind noch nicht gegen die echten Dienste getestet.
 

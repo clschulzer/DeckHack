@@ -1,10 +1,16 @@
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { createProject, deleteProject, listProjects } from '../core/store';
+import { PROVIDERS } from '../ai/rework';
+import { probeDeck } from '../core/preview';
+import { addSnapshot, createProject, deleteProject, listProjects, saveComment, updateSnapshot } from '../core/store';
 import type { DeckFiles, DeckSource, Project } from '../core/types';
-import { loadSettings } from '../core/settings';
+import { loadSettings, saveSettings, type Settings } from '../core/settings';
+import { EXAMPLE_APPLIED, EXAMPLE_OPEN, exampleComment, exampleDeck } from '../sources/example';
 import { loadFromGithub } from '../sources/github';
-import { listTemplates } from '../sources/templates';
+import { listTemplates, type Template } from '../sources/templates';
 import { filesFromUpload } from '../sources/upload';
+import { firstDraftComment } from '../sources/wizard';
+import { SettingsDialog } from './Dialogs';
+import { Wizard, type WizardResult } from './Wizard';
 
 export function Start({ onOpen }: { onOpen: (projectId: string) => void }) {
   const templates = useMemo(listTemplates, []);
@@ -13,6 +19,9 @@ export function Start({ onOpen }: { onOpen: (projectId: string) => void }) {
   const [error, setError] = useState('');
   const [link, setLink] = useState('');
   const [dragging, setDragging] = useState(false);
+  const [settings, setSettings] = useState<Settings>(loadSettings);
+  const [wizard, setWizard] = useState<Template | null>(null);
+  const [showSettings, setShowSettings] = useState(false);
   const fileInput = useRef<HTMLInputElement>(null);
   const folderInput = useRef<HTMLInputElement>(null);
 
@@ -33,6 +42,54 @@ export function Start({ onOpen }: { onOpen: (projectId: string) => void }) {
     }
   };
 
+  const openTemplate = (t: Template) =>
+    void open('Opening template', async () => ({ name: t.name, source: { type: 'template', label: t.name }, files: t.files }));
+
+  const createFromWizard = async (t: Template, result: WizardResult) => {
+    setWizard(null);
+    setBusy('Creating your deck');
+    setError('');
+    try {
+      saveSettings(result.settings);
+      setSettings(result.settings);
+      const { project } = await createProject(result.name, { type: 'template', label: `${t.name} · start wizard` }, result.files);
+      if (result.firstDraft) {
+        await saveComment({ id: crypto.randomUUID(), projectId: project.id, slide: 0, text: firstDraftComment(result.brief), status: 'open', createdAt: Date.now() });
+      }
+      onOpen(project.id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setBusy('');
+    }
+  };
+
+  /* The example: dummy data, one round already applied, four open comments demo mode can answer. */
+  const openExample = async () => {
+    const base = templates.find((t) => t.id === 'three-minute-pitch') ?? templates[0];
+    if (!base) return;
+    setBusy('Preparing the example');
+    setError('');
+    try {
+      const deck = exampleDeck(base.files);
+      const { project, snapshot } = await createProject(deck.name, { type: 'template', label: 'Example with dummy data' }, deck.v1);
+      const first = { ...snapshot, label: 'Created with the start wizard', probe: await probeDeck(deck.v1, snapshot.entry) };
+      await updateSnapshot(first);
+      const second = await addSnapshot(project, first, deck.v1, deck.v2, {
+        kind: 'ai', label: `Rework: slide ${EXAMPLE_APPLIED.slide}`, probe: await probeDeck(deck.v2, snapshot.entry),
+      });
+      const titles = second.probe?.titles ?? [];
+      const now = Date.now();
+      await saveComment({ ...exampleComment(project.id, EXAMPLE_APPLIED, titles, now - 1000), status: 'applied', appliedIn: second.id });
+      for (const [i, c] of EXAMPLE_OPEN.entries()) await saveComment(exampleComment(project.id, c, titles, now + i));
+      onOpen(project.id);
+    } catch (e) {
+      setError(e instanceof Error ? e.message : String(e));
+      setBusy('');
+    }
+  };
+
+  const aiReady = settings.provider === 'claude' && !!settings.apiKey;
+
   const upload = (list: FileList | File[] | null) => {
     const files = Array.from(list ?? []);
     if (!files.length) return;
@@ -45,9 +102,20 @@ export function Start({ onOpen }: { onOpen: (projectId: string) => void }) {
   return (
     <div className="start">
       <header className="start-head">
-        <div className="brand"><span className="brand-mark" aria-hidden="true" />DeckHack</div>
+        <div className="row">
+          <div className="brand"><span className="brand-mark" aria-hidden="true" />DeckHack</div>
+          <div className="spacer" />
+          <button className="btn ai-chip" onClick={() => setShowSettings(true)}>
+            <span className={'dot ' + (aiReady ? 'ready' : 'off')} aria-hidden="true" />
+            {aiReady ? `AI: ${PROVIDERS.claude!.label.replace(/ \(.*/, '')} ready` : settings.provider === 'claude' ? 'AI: API key missing' : 'AI: demo mode · add API key'}
+          </button>
+        </div>
         <h1>Fix your pitch deck slide by slide.</h1>
         <p>Open an HTML deck, leave a note on each slide that needs work, apply the whole round at once and keep every version. Your deck stays plain HTML.</p>
+        <div className="row">
+          <button className="btn primary" disabled={!!busy} onClick={() => void openExample()}>Try the example deck</button>
+          <span className="hint">Dummy data, four comments waiting, one version to go back to. No key needed.</span>
+        </div>
       </header>
 
       {error && <div className="notice error" role="alert">{error}</div>}
@@ -61,7 +129,7 @@ export function Start({ onOpen }: { onOpen: (projectId: string) => void }) {
               <li key={t.id}>
                 <button
                   className="template" disabled={!!busy}
-                  onClick={() => void open('Opening template', async () => ({ name: t.name, source: { type: 'template', label: t.name }, files: t.files }))}
+                  onClick={() => setWizard(t)}
                 >
                   <b>{t.name}</b>
                   <span>{t.description}</span>
@@ -69,6 +137,7 @@ export function Start({ onOpen }: { onOpen: (projectId: string) => void }) {
               </li>
             ))}
           </ul>
+          <p className="hint">A short wizard asks for pitch length, jury criteria and storyline, then lays out the slides.</p>
         </section>
 
         <section className="source" aria-labelledby="src-upload">
@@ -124,6 +193,22 @@ export function Start({ onOpen }: { onOpen: (projectId: string) => void }) {
             ))}
           </ul>
         </section>
+      )}
+
+      {wizard && (
+        <Wizard
+          template={wizard} settings={settings}
+          onClose={() => setWizard(null)}
+          onPlain={() => { const t = wizard; setWizard(null); openTemplate(t); }}
+          onCreate={(result) => void createFromWizard(wizard, result)}
+        />
+      )}
+      {showSettings && (
+        <SettingsDialog
+          settings={settings}
+          onClose={() => setShowSettings(false)}
+          onSave={(next) => { saveSettings(next); setSettings(next); setShowSettings(false); }}
+        />
       )}
 
       <footer className="start-foot">

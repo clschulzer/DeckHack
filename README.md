@@ -8,6 +8,8 @@ DeckHack is a static web app. It has no server: decks, versions and keys stay in
 
 ## What it does
 
+- **Try it without anything:** “Try the example deck” opens a deck with dummy data, four comments waiting and a version to go back to. Demo mode answers them with prepared edits, no key needed.
+- **Start wizard for templates:** pick the pitch length, the jury criteria and a storyline, type what the pitch is about, choose demo mode or your Claude API key. The wizard lays out the slides and marks missing facts as `[TODO]`.
 - **Open a deck three ways:** a bundled template, your own file / folder / .zip, or a GitHub link (repository, folder, or GitHub Pages URL).
 - **Any HTML deck.** Slides are detected by adapters: one element per slide (`section`, `.slide`, reveal.js), or decks that build scenes in JavaScript and show a counter such as `08 / 17`. An optional `deckhack.json` can pin the detection.
 - **Comment where it is wrong.** Notes are pinned to a slide or to the whole deck and collected into one review round.

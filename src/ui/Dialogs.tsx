@@ -7,14 +7,14 @@ import type { Project, Snapshot } from '../core/types';
 import { commitToGithub } from '../sources/github';
 import { zipDeck } from '../sources/upload';
 
-function Dialog({ title, onClose, children }: { title: string; onClose: () => void; children: ReactNode }) {
+export function Dialog({ title, onClose, children, wide }: { title: string; onClose: () => void; children: ReactNode; wide?: boolean }) {
   const ref = useRef<HTMLDialogElement>(null);
   useEffect(() => {
     const el = ref.current;
     if (el && !el.open) el.showModal();
   }, []);
   return (
-    <dialog ref={ref} className="dialog" onClose={onClose} onClick={(e) => { if (e.target === ref.current) onClose(); }}>
+    <dialog ref={ref} className={'dialog' + (wide ? ' wide' : '')} onClose={onClose} onClick={(e) => { if (e.target === ref.current) onClose(); }}>
       <div className="dialog-inner">
         <header><h2>{title}</h2><button className="btn quiet" onClick={onClose} aria-label="Close">Close</button></header>
         {children}
