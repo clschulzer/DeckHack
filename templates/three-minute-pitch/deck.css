@@ -1,0 +1,47 @@
+/* Three-minute pitch. Plain CSS, no build step. Change the five tokens to restyle the whole deck. */
+:root {
+  --bg: #101418;
+  --ink: #f2f4f1;
+  --muted: #98a3a0;
+  --accent: #5ee0c0;
+  --line: #27313a;
+  --display: "Avenir Next", "Segoe UI", system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: var(--display); }
+.deck { height: 100vh; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; }
+.deck::-webkit-scrollbar { display: none; }
+.slide {
+  height: 100vh; scroll-snap-align: start; padding: 9vh 9vw 13vh;
+  display: flex; flex-direction: column; justify-content: center; gap: 3.2vh;
+}
+.eyebrow { font-size: clamp(11px, 1.35vw, 20px); letter-spacing: .14em; text-transform: uppercase; color: var(--accent); }
+h1 { font-size: clamp(30px, 6.2vw, 96px); line-height: 1.04; letter-spacing: -.02em; max-width: 17ch; text-wrap: balance; }
+h2 { font-size: clamp(24px, 4.6vw, 72px); line-height: 1.08; letter-spacing: -.015em; max-width: 20ch; text-wrap: balance; }
+em { font-style: normal; color: var(--accent); }
+.lede { font-size: clamp(15px, 2.2vw, 34px); color: var(--muted); max-width: 34ch; }
+.points { list-style: none; padding: 0; display: grid; gap: 1.6vh; font-size: clamp(14px, 2.1vw, 32px); color: var(--muted); }
+.points b { color: var(--ink); }
+.steps { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw; counter-reset: step; }
+.steps li { border-top: 2px solid var(--accent); padding-top: 2vh; display: grid; gap: 1vh; counter-increment: step; }
+.steps li::before { content: "0" counter(step); font-size: clamp(11px, 1.2vw, 18px); color: var(--muted); letter-spacing: .1em; }
+.steps b { font-size: clamp(16px, 2.4vw, 38px); }
+.steps span, .team span { font-size: clamp(12px, 1.5vw, 22px); color: var(--muted); }
+.team { display: flex; gap: 4vw; flex-wrap: wrap; }
+.team div { display: grid; gap: .6vh; }
+.team b { font-size: clamp(15px, 2vw, 30px); }
+.screen { flex: 1; min-height: 0; max-height: 46vh; border: 1px solid var(--line); border-radius: 1.2vw; background: #161c22; display: grid; grid-template-rows: auto 1fr; overflow: hidden; }
+.screen .bar { display: flex; gap: .5vw; padding: 1vw; border-bottom: 1px solid var(--line); }
+.screen .bar i { width: .8vw; height: .8vw; border-radius: 50%; background: var(--line); }
+.screen p { place-self: center; color: var(--muted); font-size: clamp(12px, 1.5vw, 22px); padding: 2vw; text-align: center; }
+.chrome { position: fixed; left: 9vw; right: 9vw; bottom: 5vh; display: flex; align-items: center; gap: 2vw; font-size: clamp(10px, 1.1vw, 16px); color: var(--muted); font-variant-numeric: tabular-nums; }
+.progress { flex: 1; height: 2px; background: var(--line); }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .35s ease; }
+
+/* Entrance: each slide's content rises in when the slide becomes active. */
+.slide > * { opacity: 0; transform: translateY(2.4vh); transition: opacity .6s ease, transform .6s ease; }
+.slide.active > * { opacity: 1; transform: none; }
+.slide.active > :nth-child(2) { transition-delay: .12s; }
+.slide.active > :nth-child(3) { transition-delay: .24s; }
+.slide.active > :nth-child(4) { transition-delay: .36s; }
+@media (prefers-reduced-motion: reduce) { .slide > * { transition: none; } }
