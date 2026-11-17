@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <!--
+      Second line of defence behind the sandboxed preview. The preview iframe inherits this policy,
+      so neither the app nor deck code can send data (for example an API key) anywhere except the
+      services DeckHack talks to. Scripts and styles stay open because decks bring their own.
+    -->
+    <meta
+      http-equiv="Content-Security-Policy"
+      content="default-src 'self'; script-src 'self' 'unsafe-inline' 'unsafe-eval' https: blob: data:; style-src 'self' 'unsafe-inline' https:; img-src * data: blob:; media-src * data: blob:; font-src * data:; connect-src 'self' https://api.anthropic.com https://api.github.com https://cdn.jsdelivr.net data: blob:; frame-src 'self' blob: data:; worker-src 'self' blob:; object-src 'none'; base-uri 'self'; form-action 'none'"
+    />
+    <title>DeckHack</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
+</html>

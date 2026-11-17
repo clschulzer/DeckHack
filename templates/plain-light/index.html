@@ -1,0 +1,41 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plain light</title>
+<style>
+  :root { --ink: #16181d; --muted: #6a7180; --accent: #2748d8; --bg: #fbfbf9; }
+  * { box-sizing: border-box; margin: 0; }
+  html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: Georgia, "Times New Roman", serif; }
+  main { height: 100vh; overflow-y: auto; scroll-snap-type: y mandatory; }
+  section { height: 100vh; scroll-snap-align: start; padding: 10vh 10vw; display: flex; flex-direction: column; justify-content: center; gap: 3vh; }
+  h1 { font-size: clamp(28px, 5.6vw, 88px); line-height: 1.05; font-weight: 400; max-width: 18ch; }
+  h2 { font-size: clamp(22px, 4vw, 60px); line-height: 1.1; font-weight: 400; max-width: 22ch; }
+  p { font-family: system-ui, sans-serif; font-size: clamp(14px, 2vw, 30px); color: var(--muted); max-width: 38ch; }
+  ul, ol { font-family: system-ui, sans-serif; font-size: clamp(14px, 2vw, 30px); color: var(--muted); padding-left: 1.2em; display: grid; gap: 1vh; }
+  li b, .team b { color: var(--ink); }
+  .team { display: flex; gap: 4vw; flex-wrap: wrap; font-family: system-ui, sans-serif; font-size: clamp(14px, 2vw, 30px); }
+  .team span { display: block; color: var(--muted); font-size: .75em; }
+  em { font-style: normal; color: var(--accent); }
+  .screen { border: 1px solid #d9dbd3; border-radius: 12px; padding: 6vh 4vw; }
+  .tag { font-family: system-ui, sans-serif; max-width: none; font-size: clamp(10px, 1.2vw, 18px); letter-spacing: .12em; text-transform: uppercase; color: var(--accent); }
+</style>
+</head>
+<body>
+<main>
+  <section><span class="tag">Project name</span><h1>One sentence the jury will repeat.</h1></section>
+  <section><span class="tag">Problem</span><h2>Who has this problem, and how often?</h2><p>Say it with one number you can defend.</p></section>
+  <section><span class="tag">Solution</span><h2>What you built this weekend.</h2><p>Show it instead of describing it.</p></section>
+  <section><span class="tag">Next</span><h2>What you would do with four more weeks.</h2><p>name@example.org</p></section>
+</main>
+<script>
+  const main = document.querySelector('main'), slides = [...document.querySelectorAll('section')];
+  const at = () => Math.round(main.scrollTop / main.clientHeight);
+  addEventListener('keydown', (e) => {
+    const d = ['ArrowRight', 'ArrowDown', ' '].includes(e.key) ? 1 : ['ArrowLeft', 'ArrowUp'].includes(e.key) ? -1 : 0;
+    if (d) { e.preventDefault(); slides[Math.max(0, Math.min(slides.length - 1, at() + d))].scrollIntoView({ behavior: 'instant' }); }
+  });
+</script>
+</body>
+</html>

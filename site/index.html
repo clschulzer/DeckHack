@@ -1,0 +1,252 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>DeckHack: fix your pitch deck slide by slide</title>
+<meta name="description" content="Open-source review tool for HTML pitch decks. Comment on each slide, let AI apply the round, see exactly which slides changed, keep every version. Runs in your browser with your own key.">
+<meta property="og:title" content="DeckHack: fix your pitch deck slide by slide">
+<meta property="og:description" content="Comment on each slide, apply the round, see exactly which slides changed. Open source, runs in your browser.">
+<meta property="og:image" content="media/example.png">
+<style>
+  :root {
+    --bg: #e9ecf1; --surface: #f7f8fa; --raised: #ffffff; --stage: #12151b; --line: #d3d8e0;
+    --ink: #171b24; --muted: #5b6475; --action: #2446d8; --action-ink: #ffffff; --action-soft: #e3e8fc;
+    --note: #f2c12e; --note-soft: #fdf3cf; --note-ink: #4a3900; --good: #1f7a4d;
+    --ui: system-ui, -apple-system, "Segoe UI", Roboto, sans-serif;
+    --mono: ui-monospace, "SF Mono", "Cascadia Mono", Menlo, Consolas, monospace;
+  }
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1b1f27; --surface: #232832; --raised: #2b313d; --stage: #0c0e13; --line: #363d4b;
+      --ink: #eceef3; --muted: #a0a8b8; --action: #8ea2ff; --action-ink: #0e1430; --action-soft: #2a3358;
+      --note-soft: #4a3f17; --note-ink: #fbe9a8; --good: #6fd3a0; color-scheme: dark;
+    }
+  }
+  *, *::before, *::after { box-sizing: border-box; }
+  html { scroll-behavior: smooth; }
+  body { margin: 0; background: var(--bg); color: var(--ink); font: 16px/1.55 var(--ui); }
+  h1, h2, h3, p, ul, ol, figure { margin: 0; }
+  ul, ol { padding: 0; list-style: none; }
+  a { color: var(--action); }
+  img { display: block; max-width: 100%; height: auto; }
+  pre.run { background: var(--raised); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 18px 0; }
+  pre.run code { background: none; border: 0; padding: 0; }
+  code { font-family: var(--mono); font-size: .9em; background: var(--raised); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
+  :focus-visible { outline: 2px solid var(--action); outline-offset: 3px; }
+  .wrap { width: min(1120px, 100% - 40px); margin-inline: auto; }
+
+  header.top { display: flex; align-items: center; gap: 20px; padding: 18px 0; }
+  .brand { display: inline-flex; align-items: center; gap: 9px; font-weight: 700; letter-spacing: -.01em; color: var(--ink); text-decoration: none; }
+  .mark { width: 22px; height: 15px; border-radius: 3px; background: var(--action); position: relative; }
+  .mark::after { content: ""; position: absolute; right: -4px; top: -4px; width: 10px; height: 10px; border-radius: 2px; background: var(--note); }
+  .top nav { margin-left: auto; display: flex; gap: 18px; font-size: 14.5px; }
+  .top nav a { color: var(--muted); text-decoration: none; }
+  .top nav a:hover { color: var(--ink); }
+
+  .hero { padding: 36px 0 28px; display: grid; gap: 22px; }
+  .hero h1 { font-size: clamp(34px, 6vw, 64px); line-height: 1.03; letter-spacing: -.03em; max-width: 14ch; text-wrap: balance; }
+  .hero p.lead { font-size: clamp(17px, 2vw, 20px); color: var(--muted); max-width: 58ch; }
+  .cta { display: flex; flex-wrap: wrap; gap: 10px; align-items: center; }
+  .btn { display: inline-flex; align-items: center; min-height: 44px; padding: 0 18px; border-radius: 7px; border: 1px solid var(--line); background: var(--raised); color: var(--ink); text-decoration: none; font-weight: 600; }
+  .btn:hover { border-color: var(--muted); }
+  .btn.primary { background: var(--action); border-color: var(--action); color: var(--action-ink); }
+  .cta small { color: var(--muted); font-size: 13.5px; }
+
+  /* The lit stage: the one dark surface on the page, as in the app. */
+  .stage { background: var(--stage); border-radius: 14px; padding: clamp(8px, 1.6vw, 18px); box-shadow: 0 24px 60px -30px rgb(10 12 18 / .6); }
+  .stage img { border-radius: 8px; width: 100%; }
+
+  section { padding: 56px 0; border-top: 1px solid var(--line); }
+  .kicker { font: 12px var(--mono); letter-spacing: .1em; text-transform: uppercase; color: var(--muted); }
+  section h2 { font-size: clamp(26px, 3.6vw, 38px); line-height: 1.1; letter-spacing: -.02em; max-width: 22ch; text-wrap: balance; margin: 8px 0 12px; }
+  section > .wrap > p { color: var(--muted); max-width: 64ch; }
+
+  .loop { display: grid; gap: 40px; margin-top: 32px; }
+  .step { display: grid; grid-template-columns: minmax(0, 5fr) minmax(0, 8fr); gap: clamp(18px, 4vw, 44px); align-items: center; }
+  .step:nth-child(even) { grid-template-columns: minmax(0, 8fr) minmax(0, 5fr); }
+  .step:nth-child(even) > div { order: 2; }
+  .step h3 { font-size: 21px; letter-spacing: -.01em; margin-bottom: 8px; display: flex; gap: 10px; align-items: baseline; }
+  .step h3 span { font: 13px var(--mono); color: var(--action); }
+  .step p { color: var(--muted); }
+  .shot { border: 1px solid var(--line); border-radius: 10px; overflow: hidden; background: var(--raised); }
+  .note { display: inline-block; margin-top: 12px; background: var(--note-soft); color: var(--note-ink); border-left: 3px solid var(--note); padding: 7px 11px; border-radius: 0 6px 6px 0; font-size: 14.5px; }
+  .verdict { display: inline-block; margin-top: 12px; border: 1px solid var(--good); color: var(--ink); border-radius: 6px; padding: 7px 11px; font-size: 14.5px; font-weight: 600; }
+
+  .cols { display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 14px; margin-top: 26px; }
+  .card { background: var(--surface); border: 1px solid var(--line); border-radius: 10px; padding: 18px; display: grid; gap: 6px; align-content: start; }
+  .card h3 { font-size: 16.5px; }
+  .card p { color: var(--muted); font-size: 15px; }
+  .card .n { font: 600 26px var(--mono); letter-spacing: -.02em; }
+
+  .two { display: grid; grid-template-columns: minmax(0, 1fr) minmax(0, 1fr); gap: clamp(18px, 4vw, 44px); align-items: center; margin-top: 26px; }
+  .facts { display: grid; gap: 10px; }
+  .facts li { padding-left: 18px; position: relative; color: var(--muted); }
+  .facts li::before { content: ""; position: absolute; left: 0; top: .62em; width: 8px; height: 8px; border-radius: 2px; background: var(--action); }
+  .facts b { color: var(--ink); }
+
+  footer { border-top: 1px solid var(--line); padding: 26px 0 40px; color: var(--muted); font-size: 14px; display: flex; flex-wrap: wrap; gap: 8px 22px; }
+
+  @media (max-width: 760px) {
+    .step, .two { grid-template-columns: 1fr; }
+    .step:nth-child(even) { grid-template-columns: 1fr; }
+    .step:nth-child(even) > div { order: 0; }
+    .top nav a:not(.keep) { display: none; }
+    section { padding: 40px 0; }
+  }
+  @media (prefers-reduced-motion: reduce) { html { scroll-behavior: auto; } }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header class="top">
+    <a class="brand" href="./"><span class="mark" aria-hidden="true"></span>DeckHack</a>
+    <nav aria-label="Page">
+      <a href="#run">Run it</a>
+      <a href="#loop">How it works</a>
+      <a href="#wizard">Start wizard</a>
+      <a href="#key">Your key</a>
+      <a href="#tested">Tested</a>
+      <a class="keep" href="https://github.com/clschulzer/DeckHack">GitHub</a>
+    </nav>
+  </header>
+
+  <div class="hero">
+    <h1>Fix your pitch deck slide by slide.</h1>
+    <p class="lead">Your team built the pitch as HTML with an AI. Now it needs twenty small fixes before the jury sees it. DeckHack lets you click through the deck, leave a note on each slide, apply all notes in one round and see exactly which slides changed.</p>
+    <div class="cta">
+      <a class="btn primary" href="#run">Run it locally</a>
+      <a class="btn" href="app/?example">Try the demo</a>
+      <small>DeckHack runs on your own computer with one command. The demo here uses dummy data and takes no key.</small>
+    </div>
+    <figure class="stage">
+      <img src="media/demo.gif" width="1280" height="800" alt="DeckHack demo: four comments on a seven-slide deck are applied in one round, the app reports that slides 1, 3, 5 and 7 changed and every other slide is unchanged, then the earlier version is shown again.">
+    </figure>
+  </div>
+</div>
+
+<section id="loop">
+  <div class="wrap">
+    <p class="kicker">How it works</p>
+    <h2>Comment, apply, check. Then the next round.</h2>
+    <p>No more one long chat and jumping back and forth between the chat and the presentation.</p>
+    <div class="loop">
+      <div class="step">
+        <div>
+          <h3><span>01</span>Say it where it is wrong</h3>
+          <p>Click through the slides and type what should change. Point at a headline or a number to make clear which element you mean. Notes wait on their slide until you are done.</p>
+          <span class="note">Our ward survey says 52 minutes, not 47.</span>
+        </div>
+        <figure class="shot"><img src="media/example.png" width="1440" height="900" loading="lazy" alt="The editor: slide list on the left with yellow markers for open comments, the slide in the middle, the review panel on the right."></figure>
+      </div>
+      <div class="step">
+        <div>
+          <h3><span>02</span>Apply the whole round</h3>
+          <p>The AI makes small, exact edits to your files. DeckHack then reloads the deck, walks every slide and compares it with the version before. A fix on slide 8 that quietly moved slide 3 shows up as a warning, not on stage.</p>
+          <span class="verdict">Changed: slides 1, 3, 5, 7. Every other slide is unchanged.</span>
+        </div>
+        <figure class="shot"><img src="media/applied.png" width="1440" height="900" loading="lazy" alt="After a round: a result card says which slides changed, with buttons to show the version before and to undo."></figure>
+      </div>
+      <div class="step">
+        <div>
+          <h3><span>03</span>Go back whenever you want</h3>
+          <p>Every round is a version. Flip between before and after on the same slide, undo a round or restore any earlier state. Restoring adds a version, so nothing is ever lost. Save as a commit on a branch of your repository or as a zip.</p>
+        </div>
+        <figure class="shot"><img src="media/versions.png" width="1440" height="900" loading="lazy" alt="The version list with three versions, each with View and Restore."></figure>
+      </div>
+    </div>
+    <div class="cols">
+      <div class="card"><h3>Any HTML deck</h3><p>One element per slide, reveal-style sections, or decks that build their scenes in JavaScript and show a counter like 08 / 17. Your deck stays plain HTML and runs without DeckHack.</p></div>
+      <div class="card"><h3>Three ways in</h3><p>Start from a template, drop a file, folder or zip, or paste a GitHub link. <code>localhost:8080/?deck=github.com/you/repo</code> opens a deck directly.</p></div>
+      <div class="card"><h3>With and without animation</h3><p>Freeze animations to judge the layout, replay a slide to judge the timing, step through scripted scenes, present fullscreen.</p></div>
+    </div>
+  </div>
+</section>
+
+<section id="wizard">
+  <div class="wrap">
+    <p class="kicker">Start wizard</p>
+    <h2>No deck yet? Five questions and you have one.</h2>
+    <div class="two">
+      <ul class="facts">
+        <li><b>How long may you talk?</b> 1, 3, 5 or 10 minutes become 4, 7, 9 or 12 slides, with the seconds you have per slide.</li>
+        <li><b>What does the jury score?</b> Every criterion you tick gets its slide before anything else is added.</li>
+        <li><b>How do you tell it?</b> Problem first, demo first, one person’s story, or number first.</li>
+        <li><b>What is it about?</b> Whatever you leave empty becomes a visible <code>[TODO]</code> on the slide. Nothing is made up.</li>
+        <li><b>Who applies your comments?</b> Demo mode, or Claude with your own API key.</li>
+      </ul>
+      <figure class="shot"><img src="media/wizard.png" loading="lazy" alt="The start wizard on the storyline step, with four storylines and the slide plan below."></figure>
+    </div>
+  </div>
+</section>
+
+<section id="run">
+  <div class="wrap">
+    <p class="kicker">Run it</p>
+    <h2>One command, on your own laptop.</h2>
+    <p>Nobody hosts DeckHack for you, and nobody has to. It is a static app that you start locally, so your key and your deck never pass through someone else's server.</p>
+    <pre class="run"><code>git clone https://github.com/clschulzer/DeckHack
+cd DeckHack
+docker compose up        # then open http://localhost:8080
+# without Docker: npm ci &amp;&amp; npm start</code></pre>
+    <p>The page you are on is only the project site. Its <a href="app/?example">demo</a> lets you click through the review loop with dummy data, without any key entry.</p>
+  </div>
+</section>
+
+<section id="key">
+  <div class="wrap">
+    <p class="kicker">Your key</p>
+    <h2>No server. Your key and your deck stay with you.</h2>
+    <div class="two">
+      <figure class="shot"><img src="media/settings.png" loading="lazy" alt="The settings dialog with the API key field, the advice to use a dedicated key with a spend limit, and the warning that appears when keys are remembered."></figure>
+      <ul class="facts">
+        <li><b>Static app, run locally.</b> DeckHack is a page in your browser, served from your own computer. The key goes to api.anthropic.com and nowhere else.</li>
+        <li><b>Gone with the tab.</b> By default the key is forgotten when you close the tab. Remembering it is opt-in, with a clear warning.</li>
+        <li><b>Deck code is locked in.</b> Decks run in a sandboxed frame without access to the app, and a content security policy blocks connections to other servers.</li>
+        <li><b>Limit the damage.</b> Use a key made only for DeckHack, in a workspace with a spend limit.</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<section id="tested">
+  <div class="wrap">
+    <p class="kicker">Tested and measured</p>
+    <h2>The check that tells you what changed is itself checked.</h2>
+    <p>Three layers, all in the repository and all run on every pull request except the live evals, which need an API key.</p>
+    <div class="cols">
+      <div class="card"><span class="n">52</span><h3>Unit tests</h3><p>Edits, versions, key storage, the wizard, every template against the template rules.</p></div>
+      <div class="card"><span class="n">34</span><h3>Browser checks</h3><p>The whole loop in a real browser: comment, apply, changed slides, restore, sandbox, key handling, wizard.</p></div>
+      <div class="card"><span class="n">12</span><h3>Eval cases</h3><p>Did only the commented slide change? Is the change there? Was anything invented? Deterministic scoring, no model grading a model.</p></div>
+    </div>
+    <p style="margin-top:18px">Honest status: the eval cases and their scoring are tested, but no live run against Claude has been recorded yet. <a href="https://github.com/clschulzer/DeckHack/blob/main/docs/TESTING.md">Test strategy</a> · <a href="https://github.com/clschulzer/DeckHack/tree/main/evals">Evals</a></p>
+  </div>
+</section>
+
+<section id="community">
+  <div class="wrap">
+    <p class="kicker">Open source</p>
+    <h2>Built at a hackathon, for the next one.</h2>
+    <p>MIT licensed. The easiest contributions are a folder each.</p>
+    <div class="cols">
+      <div class="card"><h3>A template</h3><p>Your deck from the last event, with invented content. One folder with an HTML file and a small manifest.</p></div>
+      <div class="card"><h3>A slide adapter</h3><p>Your deck format is not detected? Teach the preview how to find its slides.</p></div>
+      <div class="card"><h3>An AI provider</h3><p>One small interface: comments in, file edits out.</p></div>
+    </div>
+    <div class="cta" style="margin-top:24px">
+      <a class="btn primary" href="#run">Run it locally</a>
+      <a class="btn" href="https://github.com/clschulzer/DeckHack">View on GitHub</a>
+    </div>
+  </div>
+</section>
+
+<div class="wrap">
+  <footer>
+    <span>DeckHack · MIT license</span>
+    <a href="https://github.com/clschulzer/DeckHack/blob/main/CONTRIBUTING.md">Contributing</a>
+    <a href="https://github.com/clschulzer/DeckHack/blob/main/docs/ARCHITECTURE.md">Architecture</a>
+    <span>All screenshots show invented example data.</span>
+  </footer>
+</div>
+</body>
+</html>

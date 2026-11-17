@@ -1,0 +1,36 @@
+name: Evals
+# Manual run of the live rework evals. Needs the repository secret ANTHROPIC_API_KEY and costs API usage.
+on:
+  workflow_dispatch:
+    inputs:
+      model:
+        description: Model id
+        default: claude-opus-5-5
+      runs:
+        description: Runs per case
+        default: "1"
+      cases:
+        description: Comma-separated case ids (empty = all)
+        default: ""
+permissions:
+  contents: read
+jobs:
+  evals:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+      - run: npm ci
+      - run: npm run eval
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          EVAL_MODEL: ${{ inputs.model }}
+          EVAL_RUNS: ${{ inputs.runs }}
+          EVAL_CASES: ${{ inputs.cases }}
+      - uses: actions/upload-artifact@v4
+        with:
+          name: eval-report
+          path: evals/results/

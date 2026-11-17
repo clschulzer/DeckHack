@@ -1,0 +1,8 @@
+{
+  "name": "Plain light",
+  "description": "Four quiet slides on white in a single HTML file. A clean start for your own design.",
+  "author": "DeckHack",
+  "colors": ["#fbfbf9", "#16181d", "#2748d8"],
+  "entry": "index.html",
+  "slideSelector": "section"
+}
