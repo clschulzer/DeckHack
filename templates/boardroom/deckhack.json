@@ -1,0 +1,8 @@
+{
+  "name": "Boardroom",
+  "description": "Eight navy and white slides with a header band, logo space and a calm grid. For B2B, fintech and corporate challenges.",
+  "author": "DeckHack",
+  "colors": ["#ffffff", "#0f2747", "#1f6feb", "#f5b700"],
+  "entry": "index.html",
+  "slideSelector": "section.slide"
+}

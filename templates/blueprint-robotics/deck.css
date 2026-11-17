@@ -1,0 +1,90 @@
+/* Blueprint robotics. Plain CSS, no build step. Change the tokens to restyle the whole deck.
+   Every slide gets a figure label ("FIG. 03") from a CSS counter, so added slides number themselves. */
+:root {
+  --bg: #0b3a75;
+  --deep: #082c5a;
+  --ink: #eaf2ff;
+  --muted: #b4c8e6;
+  --accent: #ff9f1c;
+  --grid: rgba(234, 242, 255, .08);
+  --grid-strong: rgba(234, 242, 255, .16);
+  --mono: ui-monospace, "SF Mono", "Cascadia Code", Menlo, Consolas, monospace;
+  --sans: "DIN Alternate", "Bahnschrift", "Roboto Condensed", "Arial Narrow", system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+.deck { height: 100vh; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; counter-reset: fig; }
+.deck::-webkit-scrollbar { display: none; }
+.slide {
+  position: relative; height: 100vh; scroll-snap-align: start; padding: 11vh 9vw 17vh;
+  display: flex; flex-direction: column; justify-content: center; gap: 3vh; counter-increment: fig;
+  background-color: var(--bg);
+  background-image:
+    linear-gradient(var(--grid-strong) 1px, transparent 1px), linear-gradient(90deg, var(--grid-strong) 1px, transparent 1px),
+    linear-gradient(var(--grid) 1px, transparent 1px), linear-gradient(90deg, var(--grid) 1px, transparent 1px);
+  background-size: 10vw 10vw, 10vw 10vw, 2vw 2vw, 2vw 2vw;
+}
+/* Drawing frame and figure label. */
+.slide::before { content: ""; position: absolute; inset: 4vh 3vw; border: 1px solid var(--grid-strong); pointer-events: none; }
+.slide::after {
+  content: "FIG. " counter(fig, decimal-leading-zero); position: absolute; top: 6vh; right: 5vw;
+  font-family: var(--mono); font-size: clamp(10px, 1.1vw, 16px); letter-spacing: .14em; color: var(--accent);
+}
+
+.eyebrow, .tag { font-family: var(--mono); font-size: clamp(11px, 1.2vw, 18px); letter-spacing: .16em; text-transform: uppercase; color: var(--accent); display: flex; align-items: center; gap: 1vw; }
+.eyebrow::before, .tag::before { content: ""; width: 4vw; height: 0; border-top: 2px solid var(--accent); }
+h1 { font-size: clamp(30px, 5.8vw, 92px); line-height: 1.02; letter-spacing: -.01em; font-weight: 700; text-transform: uppercase; max-width: 16ch; text-wrap: balance; }
+h2 { font-size: clamp(24px, 4.2vw, 66px); line-height: 1.06; font-weight: 700; text-transform: uppercase; max-width: 21ch; text-wrap: balance; }
+em { font-style: normal; color: var(--accent); }
+h1 em { white-space: nowrap; }
+.lede { font-size: clamp(15px, 2vw, 30px); line-height: 1.4; color: var(--muted); max-width: 38ch; }
+
+.points { list-style: none; padding: 0; display: grid; gap: 1.4vh; font-size: clamp(14px, 1.9vw, 28px); color: var(--muted); counter-reset: pt; }
+.points li { counter-increment: pt; display: grid; grid-template-columns: auto 1fr; gap: 1.2vw; align-items: baseline; }
+.points li::before { content: "(" counter(pt, upper-alpha) ")"; font-family: var(--mono); font-size: .7em; color: var(--accent); }
+.points b { color: var(--ink); }
+
+/* Steps as a signal chain: boxes joined by arrows. */
+.steps { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 4vw; counter-reset: step; }
+.steps li { position: relative; border: 2px solid var(--ink); background: var(--deep); padding: 2.4vh 1.6vw; display: grid; align-content: start; gap: 1vh; counter-increment: step; }
+.steps li:not(:last-child)::after { content: ""; position: absolute; top: 50%; right: calc(-4vw - 2px); width: 4vw; border-top: 2px dashed var(--accent); transform-origin: left; }
+.steps li::before { content: "MOD-0" counter(step); font-family: var(--mono); font-size: clamp(10px, 1vw, 15px); letter-spacing: .12em; color: var(--accent); }
+.steps b { font-size: clamp(16px, 2.3vw, 36px); text-transform: uppercase; }
+.steps span, .team span { font-size: clamp(12px, 1.45vw, 22px); line-height: 1.35; color: var(--muted); }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 3vw; }
+.stats div { display: grid; gap: .8vh; padding-top: 1.6vh; border-top: 2px solid var(--ink); position: relative; }
+.stats div::before { content: ""; position: absolute; top: -1.1vh; left: 0; height: 2vh; border-left: 2px solid var(--ink); }
+.stats b { font-size: clamp(24px, 4.2vw, 66px); font-weight: 700; line-height: 1; }
+.stats span { font-family: var(--mono); font-size: clamp(11px, 1.25vw, 19px); color: var(--muted); }
+.source { font-family: var(--mono); font-size: clamp(10px, 1vw, 15px); color: var(--muted); }
+
+.team { display: flex; gap: 2vw; flex-wrap: wrap; }
+.team div { display: grid; gap: .6vh; padding: 1.8vh 1.6vw; border: 1px dashed var(--ink); background: var(--deep); min-width: 16vw; }
+.team b { font-size: clamp(15px, 2vw, 30px); text-transform: uppercase; }
+
+.screen { flex: 1; min-height: 0; max-height: 42vh; border: 2px solid var(--ink); background: var(--deep); display: grid; grid-template-rows: auto 1fr; overflow: hidden; position: relative; }
+.screen .bar { display: flex; gap: .5vw; padding: .9vw; border-bottom: 1px solid var(--grid-strong); }
+.screen .bar i { width: .8vw; height: .8vw; border: 1px solid var(--ink); }
+.screen .bar i:first-child { background: var(--accent); border-color: var(--accent); }
+.screen p { place-self: center; color: var(--muted); font-family: var(--mono); font-size: clamp(12px, 1.35vw, 20px); padding: 2vw; text-align: center; }
+
+/* Title block in the corner, as on a technical drawing. */
+.chrome { position: fixed; left: 9vw; right: 9vw; bottom: 6vh; display: flex; align-items: stretch; gap: 0; font-family: var(--mono); font-size: clamp(10px, 1vw, 15px); color: var(--muted); font-variant-numeric: tabular-nums; }
+.titleblock { display: grid; gap: .3vh; padding: .8vh 1.2vw; border: 1px solid var(--grid-strong); border-right: 0; background: var(--deep); }
+.titleblock span { font-size: max(10px, .8em); letter-spacing: .14em; text-transform: uppercase; }
+.titleblock b { color: var(--ink); font-weight: 600; }
+.progress { flex: 1; align-self: center; height: 2px; margin-left: 2vw; background: var(--grid-strong); }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .35s ease; }
+
+/* Entrance: parts are plotted in, connectors draw. Off with data-motion="off" on <html>. */
+@media (prefers-reduced-motion: no-preference) {
+  .js:not([data-motion="off"]) .slide > * { opacity: 0; }
+  .js:not([data-motion="off"]) .slide.active > * { animation: plot .55s steps(6, end) both; }
+  .js:not([data-motion="off"]) .slide.active > :nth-child(2) { animation-delay: .1s; }
+  .js:not([data-motion="off"]) .slide.active > :nth-child(3) { animation-delay: .25s; }
+  .js:not([data-motion="off"]) .slide.active > :nth-child(4) { animation-delay: .4s; }
+  .js:not([data-motion="off"]) .slide.active .steps li:not(:last-child)::after { animation: draw .5s ease-out .6s both; }
+}
+@keyframes plot { from { opacity: 0; clip-path: inset(0 100% 0 0); } to { opacity: 1; clip-path: inset(0 0 0 0); } }
+@keyframes draw { from { transform: scaleX(0); } to { transform: none; } }

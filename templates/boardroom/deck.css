@@ -1,0 +1,83 @@
+/* Boardroom. Plain CSS, no build step. Change the tokens to restyle the whole deck.
+   The "Logo" box in the header band is .slide::after: change its content, or hide it. */
+:root {
+  --bg: #ffffff;
+  --navy: #0f2747;
+  --ink: #14213d;
+  --muted: #4a5874;
+  --accent: #1f6feb;
+  --gold: #f5b700;
+  --line: #dde3ec;
+  --soft: #f3f6fa;
+  --band: 11vh;
+  --sans: "Segoe UI", "Source Sans 3", "Helvetica Neue", Arial, system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; background: var(--bg); color: var(--ink); font-family: var(--sans); }
+.deck { height: 100vh; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; }
+.deck::-webkit-scrollbar { display: none; }
+.slide {
+  position: relative; height: 100vh; scroll-snap-align: start; padding: calc(var(--band) + 7vh) 8vw 14vh;
+  display: flex; flex-direction: column; justify-content: center; gap: 3vh;
+}
+/* Header band with the section label and a logo slot. */
+.slide::before { content: ""; position: absolute; left: 0; right: 0; top: 0; height: var(--band); background: var(--navy); border-bottom: .6vh solid var(--gold); transform-origin: left; }
+.slide::after { content: "Logo"; position: absolute; top: calc(var(--band) / 2); right: 8vw; translate: 0 -50%; font-size: clamp(10px, 1.1vw, 16px); font-weight: 700; letter-spacing: .12em; text-transform: uppercase; color: #ffffff; border: 1px solid rgba(255, 255, 255, .6); padding: .6vh 1vw; }
+.slide > .eyebrow, .slide > .tag { position: absolute; top: 0; left: 8vw; height: var(--band); display: flex; align-items: center; color: #ffffff; background: var(--navy); z-index: 1; }
+
+.eyebrow, .tag { font-size: clamp(11px, 1.35vw, 20px); font-weight: 600; letter-spacing: .08em; text-transform: uppercase; }
+h1 { font-size: clamp(30px, 5.4vw, 86px); line-height: 1.06; letter-spacing: -.02em; font-weight: 700; max-width: 18ch; text-wrap: balance; }
+h2 { font-size: clamp(22px, 3.8vw, 60px); line-height: 1.12; letter-spacing: -.015em; font-weight: 700; color: var(--navy); max-width: 24ch; text-wrap: balance; }
+em { font-style: normal; color: var(--accent); }
+.lede { font-size: clamp(15px, 2vw, 30px); line-height: 1.4; color: var(--muted); max-width: 40ch; }
+
+.points { list-style: none; padding: 0; display: grid; gap: 1.4vh; font-size: clamp(14px, 1.9vw, 28px); color: var(--muted); max-width: 52ch; }
+.points li { padding-left: 1.6vw; border-left: .45vw solid var(--accent); }
+.points b { color: var(--navy); }
+
+.steps { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6vw; counter-reset: step; }
+.steps li { background: var(--soft); border-top: .6vh solid var(--accent); padding: 2.6vh 1.6vw; display: grid; align-content: start; gap: 1vh; counter-increment: step; }
+.steps li::before { content: "Step " counter(step); font-size: clamp(10px, 1.1vw, 17px); font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--accent); }
+.steps b { font-size: clamp(16px, 2.2vw, 34px); color: var(--navy); }
+.steps span, .team span { font-size: clamp(12px, 1.45vw, 22px); line-height: 1.4; color: var(--muted); }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 1.6vw; }
+.stats div { background: var(--soft); padding: 2.4vh 1.6vw; display: grid; gap: .8vh; border-bottom: .6vh solid var(--navy); }
+.stats b { font-size: clamp(24px, 4vw, 62px); font-weight: 700; color: var(--accent); letter-spacing: -.02em; line-height: 1.05; }
+.stats span { font-size: clamp(12px, 1.45vw, 22px); color: var(--muted); }
+.source { font-size: clamp(10px, 1vw, 15px); color: var(--muted); }
+
+.team { display: grid; grid-template-columns: repeat(auto-fit, minmax(16vw, 1fr)); gap: 1.6vw; }
+.team div { display: grid; gap: .6vh; padding: 2.4vh 1.6vw; border: 1px solid var(--line); border-top: .6vh solid var(--navy); }
+.team b { font-size: clamp(15px, 2vw, 30px); color: var(--navy); }
+
+.screen { flex: 1; min-height: 0; max-height: 42vh; border: 1px solid var(--line); border-radius: .5vw; background: var(--soft); display: grid; grid-template-rows: auto 1fr; overflow: hidden; box-shadow: 0 2vh 5vh rgba(15, 39, 71, .12); }
+.screen .bar { display: flex; gap: .5vw; padding: .9vw; background: #ffffff; border-bottom: 1px solid var(--line); }
+.screen .bar i { width: .8vw; height: .8vw; border-radius: 50%; background: var(--line); }
+.screen p { place-self: center; color: var(--muted); font-size: clamp(12px, 1.45vw, 22px); padding: 2vw; text-align: center; }
+
+/* Title and closing slides in navy. */
+.hook, .ask { background: var(--navy); color: #ffffff; }
+.hook::before, .ask::before { background: transparent; border-bottom-color: transparent; }
+.hook h1, .ask h2 { color: #ffffff; }
+.hook .lede, .ask .lede { color: #c9d4e6; }
+.hook em, .ask em { color: var(--gold); }
+
+.chrome { position: fixed; left: 8vw; right: 8vw; bottom: 4.5vh; display: flex; align-items: center; gap: 2vw; font-size: clamp(10px, 1.05vw, 16px); color: var(--muted); font-variant-numeric: tabular-nums; }
+.progress { flex: 1; height: 2px; background: var(--line); }
+.progress i { display: block; height: 100%; width: 0; background: var(--accent); transition: width .35s ease; }
+
+[data-slide~="hook"] .chrome, [data-slide~="ask"] .chrome { color: #c9d4e6; }
+[data-slide~="hook"] .progress, [data-slide~="ask"] .progress { background: rgba(255, 255, 255, .2); }
+
+/* Entrance: calm fade, the header band wipes in. Off with data-motion="off" on <html>. */
+@media (prefers-reduced-motion: no-preference) {
+  .js:not([data-motion="off"]) .slide > * { opacity: 0; }
+  .js:not([data-motion="off"]) .slide.active > * { animation: fade .6s ease-out both; }
+  .js:not([data-motion="off"]) .slide.active > :nth-child(2) { animation-delay: .1s; }
+  .js:not([data-motion="off"]) .slide.active > :nth-child(3) { animation-delay: .2s; }
+  .js:not([data-motion="off"]) .slide.active > :nth-child(4) { animation-delay: .3s; }
+  .js:not([data-motion="off"]) .slide.active::before { animation: wipe .5s cubic-bezier(.6, 0, .2, 1) both; }
+}
+@keyframes fade { from { opacity: 0; transform: translateY(1vh); } to { opacity: 1; transform: none; } }
+@keyframes wipe { from { transform: scaleX(0); } to { transform: none; } }

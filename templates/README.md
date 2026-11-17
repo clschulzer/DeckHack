@@ -56,18 +56,20 @@ The start wizard keeps everything in your `index.html` and replaces only what is
 3. Your script must work with any number of slides between 4 and 12. Do not hard-code a slide count.
 4. A slide fits a 16:9 stage of 1280 × 720 and scales with the viewport. Use `vw`/`vh` or `clamp()` for sizes.
 
-`three-minute-pitch/` is the reference: copy it and change the look.
+`three-minute-pitch/` is the reference: copy it and change the look. The five styled templates (`midnight-terminal`, `swiss-minimal`, `confetti-pop`, `boardroom`, `blueprint-robotics`) share one `deck.js`, which also sets `<html data-slide="hook|demo|ask">` so the fixed footer can change colour per slide, and `data-motion="off"` on `<html>` turns their animations off.
 
 ## Rules
 
 - Text files only (HTML, CSS, JS, inline SVG). Templates are bundled as text when the app is built.
 - No external requests: no CDN, no web fonts, no remote images. A template has to work offline at a venue with bad Wi-Fi, and the app's Content-Security-Policy blocks other servers anyway.
 - Invented content only. No real names, no real personal data.
-- Respect `prefers-reduced-motion` if you animate.
+- Respect `prefers-reduced-motion` if you animate, and make sure content is visible when the animation ends.
+- Text needs WCAG AA contrast (4.5:1, large text 3:1), also in a fixed footer over every slide colour.
 
 ## Check your template
 
 ```bash
-npm test          # "templates" checks every folder here against these rules
-npm run dev       # open the app and click through the wizard with your template
+npm test                 # "templates" checks every folder here against these rules
+npm run eval:templates   # real browser: keys, overflow, contrast, motion, offline (needs Chromium)
+npm run dev              # open the app and click through the wizard with your template
 ```

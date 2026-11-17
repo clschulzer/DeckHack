@@ -1,0 +1,8 @@
+{
+  "name": "Blueprint robotics",
+  "description": "Eight blueprint slides with a drawing grid, figure labels and a title block. For hardware, robotics and IoT pitches.",
+  "author": "DeckHack",
+  "colors": ["#0b3a75", "#eaf2ff", "#ff9f1c"],
+  "entry": "index.html",
+  "slideSelector": "section.slide"
+}

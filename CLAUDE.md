@@ -14,6 +14,7 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 - Lint/Format: `npm run lint`
 - Build: `npm run build`
 - Browser-Durchlauf: `npm run build && npm run e2e` (Playwright, braucht Chromium)
+- Vorlagen-Eval: `npm run eval:templates` (jede Vorlage, so wie geliefert und vom Wizard gefüllt, bei 4 Bildschirmgrößen: Tastatur, Überlauf, Kontrast, Animation, offline; Screenshots in `tests/eval/out/`)
 - Evals (live, kostet API-Nutzung): `ANTHROPIC_API_KEY=... npm run eval`. Ohne Key wird übersprungen, die Bewertung selbst testet `npm test`.
 - Pages-Build: `npm run build:pages` (Landingpage aus `site/` plus Demo-Build der App unter `app/` nach `dist-pages/`)
 - Screenshots und GIF: `npm run build && npm run media` (braucht Chromium und ffmpeg), schreibt nach `site/media/`
@@ -42,7 +43,7 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 - `src/sources/example.ts` ersetzt feste Texte aus dem Wizard-Ergebnis. Ändert sich der Wortlaut in `wizard.ts`, schlägt der Unit-Test „example deck“ fehl: dann die Texte dort nachziehen.
 - Die CSP steht als `<meta>` in `index.html` und gilt auch in der Vorschau (srcdoc erbt sie). `connect-src` erlaubt nur Anthropic, GitHub-API und jsDelivr: Decks, die per `fetch` andere Server ansprechen, melden in der Vorschau einen Fehler. Neuer KI-Anbieter oder neue Quelle heißt: Host dort ergänzen.
 - Hauptweg für Nutzer ist der lokale Start, gehostet wird nichts. Der Pages-Build (`--mode pages`, `HOSTED_DEMO` in `src/core/settings.ts`) ist nur eine Demo: keine Key-Eingabe, kein Claude, kein GitHub-Commit. Neue Stellen, die einen Key annehmen, müssen `HOSTED_DEMO` beachten. Der Browser-Durchlauf prüft das, wenn `dist-pages/` existiert.
-- Vitest liefert CSS-Importe ohne `css: true` als leeren Text. Die Option steht in `vite.config.ts` und `evals/vitest.config.ts` und muss bleiben, sonst sind Vorlagen-CSS in Tests leer.
+- Vitest liefert CSS-Importe ohne `css: true` als leeren Text. Die Option steht in `vite.config.ts`, `evals/vitest.config.ts` und `tests/eval/vitest.config.ts` und muss bleiben, sonst sind Vorlagen-CSS in Tests leer.
 - Kein `@types/node` im Projekt: Node-Module in TypeScript-Dateien nur wie in `evals/run.test.ts` laden, Skripte unter `scripts/` sind `.mjs`.
 - Ändert sich die Oberfläche, `npm run media` neu laufen lassen und die Zahlen in `site/index.html` und `docs/TESTING.md` nachziehen.
 - `templates/` wird zur Build-Zeit als Text eingebunden, daher nur Textdateien.

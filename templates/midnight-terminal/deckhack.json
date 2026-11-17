@@ -1,0 +1,8 @@
+{
+  "name": "Midnight terminal",
+  "description": "Eight dark slides with a terminal feel and neon accents. For dev tools, AI and infrastructure pitches.",
+  "author": "DeckHack",
+  "colors": ["#0b0f14", "#e6edf3", "#39ff9c", "#7aa2ff"],
+  "entry": "index.html",
+  "slideSelector": "section.slide"
+}
