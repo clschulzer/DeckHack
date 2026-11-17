@@ -2,6 +2,7 @@
   "name": "Three-minute pitch",
   "description": "Seven slides for a hackathon jury: hook, problem, solution, demo, how it works, team, ask.",
   "author": "DeckHack",
+  "colors": ["#101418", "#f2f4f1", "#5ee0c0"],
   "entry": "index.html",
   "slideSelector": "section.slide"
 }

@@ -11,6 +11,9 @@ export interface PreviewState {
 
 type Listener = (state: PreviewState) => void;
 
+/** An element the user pointed at in the preview. */
+export interface Picked { tag: string; text: string; slide: number }
+
 /**
  * One sandboxed preview of a deck. The iframe gets `sandbox="allow-scripts"` and nothing else:
  * its origin is opaque, so deck code (uploaded, linked or written by the AI) cannot read the app's
@@ -24,6 +27,8 @@ export class Preview {
   private listeners = new Set<Listener>();
   private probes = new Map<string, (r: ProbeResult) => void>();
   private readyWaiters: Array<() => void> = [];
+  /** Called when the user clicks an element while pointing mode is on. */
+  onPicked: ((picked: Picked) => void) | null = null;
 
   constructor(iframe?: HTMLIFrameElement) {
     this.iframe = iframe ?? document.createElement('iframe');
@@ -51,6 +56,9 @@ export class Preview {
       this.state = { ...this.state, current: m.current as number, count: m.count as number };
     } else if (m.type === 'error') {
       this.state = { ...this.state, errors: [...this.state.errors, m.text as string] };
+    } else if (m.type === 'picked') {
+      this.onPicked?.({ tag: String(m.tag), text: String(m.text), slide: Number(m.slide) || 1 });
+      return;
     } else if (m.type === 'probe') {
       this.probes.get(m.id as string)?.(m.result as ProbeResult);
       this.probes.delete(m.id as string);
@@ -66,6 +74,8 @@ export class Preview {
   go(n: number): void { this.send('go', { n }); }
   key(key: string): void { this.send('key', { key }); }
   freeze(on: boolean): void { this.send('freeze', { on }); }
+  /** Pointing mode: the next click in the preview reports the element instead of reaching the deck. */
+  pick(on: boolean): void { this.send('pick', { on }); }
 
   whenReady(timeoutMs = 8000): Promise<void> {
     if (this.state.ready) return Promise.resolve();

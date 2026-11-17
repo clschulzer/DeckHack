@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { estimateTokens } from '../ai/prompt';
 import { PROVIDERS, runRework } from '../ai/rework';
-import { Preview, probeDeck, type PreviewState } from '../core/preview';
+import { Preview, probeDeck, type Picked, type PreviewState } from '../core/preview';
 import { loadSettings, saveSettings, type Settings } from '../core/settings';
 import {
   addSnapshot, getProject, listComments, listSnapshots, readFiles, removeComment, saveComment, updateSnapshot,
@@ -41,6 +42,8 @@ export function Editor({ projectId, onExit }: { projectId: string; onExit: () =>
   const [tab, setTab] = useState<'review' | 'versions'>('review');
   const [draft, setDraft] = useState('');
   const [wholeDeck, setWholeDeck] = useState(false);
+  const [picking, setPicking] = useState(false);
+  const [target, setTarget] = useState<Picked | null>(null);
   const [log, setLog] = useState<LogLine[]>([]);
   const [busy, setBusy] = useState(false);
   const [result, setResult] = useState<RoundResult | null>(null);
@@ -104,8 +107,23 @@ export function Editor({ projectId, onExit }: { projectId: string; onExit: () =>
       if (state.ready) positionRef.current = state.current;
       setPv(state);
     });
+    preview.onPicked = (picked) => {
+      setTarget(picked);
+      setPicking(false);
+      setWholeDeck(false);
+      document.getElementById('comment-text')?.focus();
+    };
     return () => { off(); preview.dispose(); previewRef.current = null; };
   }, []);
+
+  /* Pointing mode ends with the first click, with Escape, and whenever the preview reloads. */
+  useEffect(() => { if (pv.ready) previewRef.current?.pick(picking); }, [picking, pv.ready]);
+  useEffect(() => {
+    if (!picking) return;
+    const onKey = (e: KeyboardEvent) => { if (e.key === 'Escape') setPicking(false); };
+    window.addEventListener('keydown', onKey);
+    return () => window.removeEventListener('keydown', onKey);
+  }, [picking]);
 
   useEffect(() => {
     if (!files || !viewed || files.id !== viewed.id) return;
@@ -145,12 +163,15 @@ export function Editor({ projectId, onExit }: { projectId: string; onExit: () =>
   const addComment = async () => {
     const text = draft.trim();
     if (!text || !project) return;
-    const slide = wholeDeck ? 0 : current;
+    const about = !wholeDeck && target ? target : null;
+    const slide = wholeDeck ? 0 : about?.slide ?? current;
     await saveComment({
       id: crypto.randomUUID(), projectId: project.id, slide, slideTitle: slide ? titles[slide - 1] : undefined,
       text, status: 'open', createdAt: Date.now(),
+      ...(about ? { target: { tag: about.tag, text: about.text } } : {}),
     });
     setDraft('');
+    setTarget(null);
     setComments(await listComments(project.id));
   };
 
@@ -314,6 +335,7 @@ export function Editor({ projectId, onExit }: { projectId: string; onExit: () =>
               {[...openHere, ...openDeck].map((c) => (
                 <li key={c.id} className="comment">
                   <span className="comment-scope">{c.slide === 0 ? 'Whole deck' : `Slide ${c.slide}`}</span>
+                  {c.target && <span className="comment-target">{c.target.tag}{c.target.text ? ` “${c.target.text}”` : ''}</span>}
                   <p>{c.text}</p>
                   <button className="btn quiet small" aria-label="Delete comment" onClick={() => void removeComment(c.id).then(() => listComments(projectId)).then(setComments)}>Delete</button>
                 </li>
@@ -329,7 +351,17 @@ export function Editor({ projectId, onExit }: { projectId: string; onExit: () =>
                 onChange={(e) => setDraft(e.target.value)}
                 onKeyDown={(e) => { if (e.key === 'Enter' && !e.shiftKey) { e.preventDefault(); void addComment(); } }}
               />
+              {target && !wholeDeck && (
+                <div className="comment-target chosen">
+                  <span>About: {target.tag}{target.text ? ` “${target.text}”` : ''} on slide {target.slide}</span>
+                  <button type="button" className="link" onClick={() => setTarget(null)}>Remove</button>
+                </div>
+              )}
               <div className="row">
+                <button
+                  type="button" className={'btn small' + (picking ? ' on' : '')} aria-pressed={picking} disabled={!isHead || !pv.ready}
+                  onClick={() => setPicking((p) => !p)} title="Click an element on the slide to say what the comment is about"
+                >{picking ? 'Click an element…' : 'Point at element'}</button>
                 <label className="check"><input id="comment-whole-deck" type="checkbox" checked={wholeDeck} onChange={(e) => setWholeDeck(e.target.checked)} /> Whole deck</label>
                 <div className="spacer" />
                 <button className="btn" disabled={!draft.trim() || !isHead}>Add comment</button>
@@ -346,6 +378,9 @@ export function Editor({ projectId, onExit }: { projectId: string; onExit: () =>
               {busy
                 ? <button className="btn" onClick={() => abortRef.current?.abort()}>Stop</button>
                 : <button className="btn primary wide" disabled={!open.length || !isHead} onClick={() => void applyRound()}>Apply round</button>}
+              {provider.needsKey && files && open.length > 0 && (
+                <p className="hint">Sends the deck text to Claude: about {estimateTokens(files.files).toLocaleString('en-US')} tokens in, plus the edits it writes back.</p>
+              )}
               {!provider.needsKey && (
                 <p className="hint">
                   Demo mode makes no AI calls. Comments that came with the example have a prepared answer. Your own comments only work as <code>replace "old" with "new"</code>.{' '}

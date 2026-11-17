@@ -38,11 +38,18 @@ export function taskText(request: ReworkRequest): string {
   const lines = request.comments.map((c) =>
     c.slide === 0
       ? `- Whole deck: ${c.text}`
-      : `- Slide ${c.slide}${c.slideTitle ? ` ("${c.slideTitle}")` : ''}: ${c.text}`,
+      : `- Slide ${c.slide}${c.slideTitle ? ` ("${c.slideTitle}")` : ''}${c.target ? `, about the <${c.target.tag}> element${c.target.text ? ` that reads "${c.target.text}"` : ''}` : ''}: ${c.text}`,
   );
   let text = `Apply these review comments to the deck:\n\n${lines.join('\n')}`;
   if (request.repair?.length) {
     text += `\n\nAn earlier attempt at these comments was applied to the files above, and the deck now reports these new errors when it loads. Fix them while keeping the requested changes:\n\n${request.repair.map((e) => `- ${e}`).join('\n')}`;
   }
   return text;
+}
+
+/** Rough size of one request in tokens (about four characters per token), shown before a round is sent. */
+export function estimateTokens(files: ReworkRequest['files']): number {
+  let chars = SYSTEM_PROMPT.length;
+  for (const file of Object.values(files)) if (file.kind === 'text') chars += file.text.length;
+  return Math.ceil(chars / 4 / 100) * 100;
 }

@@ -12,6 +12,8 @@ export interface Template {
   name: string;
   description: string;
   author: string;
+  /** Two to four CSS colours that show the template's look on the start page. Optional. */
+  colors: string[];
   files: DeckFiles;
 }
 
@@ -27,11 +29,16 @@ export function listTemplates(): Template[] {
     byId.get(id)![path] = { kind: 'text', text };
   }
   return [...byId.entries()].map(([id, files]) => {
-    let meta: { name?: string; description?: string; author?: string } = {};
+    let meta: { name?: string; description?: string; author?: string; colors?: unknown } = {};
     const manifest = files['deckhack.json'];
     try {
       if (manifest?.kind === 'text') meta = JSON.parse(manifest.text) as typeof meta;
     } catch { /* a broken manifest only costs the nice name */ }
-    return { id, name: meta.name ?? id, description: meta.description ?? '', author: meta.author ?? '', files };
+    return { id, name: meta.name ?? id, description: meta.description ?? '', author: meta.author ?? '', colors: safeColors(meta.colors), files };
   }).sort((a, b) => a.name.localeCompare(b.name));
+}
+
+/** Colours come from a file anyone can contribute, so only plain hex values are accepted. */
+function safeColors(value: unknown): string[] {
+  return Array.isArray(value) ? value.filter((c): c is string => typeof c === 'string' && /^#[0-9a-f]{3,8}$/i.test(c)).slice(0, 4) : [];
 }

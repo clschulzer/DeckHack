@@ -239,6 +239,33 @@
     return { adapter: adapter, count: total, titles: titles, fingerprints: prints, errors: errors.slice() };
   };
 
+  /* ---------- pointing at an element (for comments about one thing on a slide) ---------- */
+  var pickStyle = null, picking = false;
+  var describe = function (el) {
+    var text = (el.textContent || '').replace(/\s+/g, ' ').trim();
+    if (!text && el.getAttribute) text = el.getAttribute('alt') || el.getAttribute('aria-label') || '';
+    return { tag: el.tagName.toLowerCase(), text: text.slice(0, 80) };
+  };
+  var onPick = function (e) {
+    if (!picking) return;
+    e.preventDefault();
+    e.stopPropagation();
+    var el = e.target && e.target.nodeType === 1 ? e.target : null;
+    if (!el || el === document.documentElement || el === document.body) return;
+    var d = describe(el);
+    post('picked', { tag: d.tag, text: d.text, slide: current() });
+  };
+  var setPicking = function (on) {
+    picking = !!on;
+    if (picking && !pickStyle) {
+      pickStyle = document.createElement('style');
+      pickStyle.setAttribute('data-pc', 'pick');
+      pickStyle.textContent = '*{cursor:crosshair!important}*:hover{outline:2px solid #f2c12e!important;outline-offset:2px!important}';
+      (document.head || document.documentElement).appendChild(pickStyle);
+    } else if (!picking && pickStyle) { pickStyle.remove(); pickStyle = null; }
+  };
+  window.addEventListener('click', onPick, true);
+
   /* ---------- wiring ---------- */
   var lastPos = 0;
   var sendPos = function () {
@@ -251,6 +278,7 @@
     if (m.cmd === 'go') { go(m.n); sendPos(); }
     else if (m.cmd === 'key') { press(m.key); sendPos(); }
     else if (m.cmd === 'freeze') setFrozen(!!m.on);
+    else if (m.cmd === 'pick') setPicking(!!m.on);
     else if (m.cmd === 'probe') probe().then(function (result) { post('probe', { id: m.id, result: result }); });
   });
   var start = function () {

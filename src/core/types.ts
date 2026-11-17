@@ -64,6 +64,8 @@ export interface Comment {
   slide: number;
   slideTitle?: string;
   text: string;
+  /** The element the comment points at, when the user picked one: its tag and the start of its text. */
+  target?: { tag: string; text: string };
   status: 'open' | 'applied';
   createdAt: number;
   appliedIn?: string;

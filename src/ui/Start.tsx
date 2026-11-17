@@ -88,6 +88,27 @@ export function Start({ onOpen }: { onOpen: (projectId: string) => void }) {
     }
   };
 
+  /* Links into the app: ?example opens the example, ?template=<id> starts the wizard, ?deck=<GitHub link> loads a deck. */
+  const linked = useRef(false);
+  useEffect(() => {
+    if (linked.current) return;
+    linked.current = true;
+    let params: URLSearchParams;
+    try { params = new URLSearchParams(window.location.search); } catch { return; }
+    const deck = params.get('deck');
+    const template = templates.find((t) => t.id === params.get('template'));
+    if (!params.has('example') && !deck && !template) return;
+    try { window.history.replaceState(null, '', window.location.pathname); } catch { /* not allowed in every embedding */ }
+    if (params.has('example')) void openExample();
+    else if (template) setWizard(template);
+    else if (deck) {
+      const url = /^https?:\/\//i.test(deck) ? deck : `https://${deck}`;
+      setLink(url);
+      void open('Loading from GitHub', () => loadFromGithub(url, loadSettings().githubToken));
+    }
+    // eslint-disable-next-line react-hooks/exhaustive-deps -- runs once for the address the app was opened with
+  }, []);
+
   const aiReady = settings.provider === 'claude' && !!settings.apiKey;
 
   const upload = (list: FileList | File[] | null) => {
@@ -133,6 +154,7 @@ export function Start({ onOpen }: { onOpen: (projectId: string) => void }) {
                 >
                   <b>{t.name}</b>
                   <span>{t.description}</span>
+                  {t.colors.length > 0 && <span className="template-swatches" aria-hidden="true">{t.colors.map((c) => <i key={c} style={{ background: c }} />)}</span>}
                 </button>
               </li>
             ))}

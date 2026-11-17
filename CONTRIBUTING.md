@@ -4,7 +4,7 @@ Thanks for helping. DeckHack is meant to be owned by the people who use it at ha
 
 ## Good first contributions
 
-- **A template.** Add a folder under `templates/` with an `index.html` and a `deckhack.json` (`name`, `description`, `author`, optional `slideSelector`). Text files only: HTML, CSS, JS, inline SVG. No external requests, so it works offline at a venue with bad Wi-Fi. Use invented content and no real personal data.
+- **A template.** Add a folder under `templates/`. The format, the markup the start wizard writes and the rules (text files only, no external requests, invented content) are in [templates/README.md](templates/README.md). `npm test` checks every template against them.
 - **A slide adapter.** If your deck format is not detected, extend the detection in `src/core/bridge.inframe.js` and add your deck (or a small copy of its structure) to the tests.
 - **A provider.** Implement the `Provider` interface in `src/ai/provider.ts`.
 
