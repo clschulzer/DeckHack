@@ -3,7 +3,7 @@ import tseslint from 'typescript-eslint';
 import reactHooks from 'eslint-plugin-react-hooks';
 
 export default tseslint.config(
-  { ignores: ['dist', 'dist-single', 'node_modules', 'templates', 'tests/e2e/out', 'src/core/bridge.inframe.js'] },
+  { ignores: ['dist', 'dist-single', 'dist-pages', 'site', 'node_modules', 'templates', 'tests/e2e/out', 'src/core/bridge.inframe.js'] },
   js.configs.recommended,
   ...tseslint.configs.recommended,
   {
@@ -13,5 +13,5 @@ export default tseslint.config(
       'react-hooks/exhaustive-deps': 'warn',
     },
   },
-  { files: ['tests/e2e/**'], languageOptions: { globals: { process: 'readonly', console: 'readonly', document: 'readonly', window: 'readonly', URL: 'readonly', fetch: 'readonly', setTimeout: 'readonly', localStorage: 'readonly', sessionStorage: 'readonly' } } },
+  { files: ['tests/e2e/**', 'scripts/**', 'evals/**'], languageOptions: { globals: { process: 'readonly', console: 'readonly', document: 'readonly', window: 'readonly', URL: 'readonly', fetch: 'readonly', setTimeout: 'readonly', localStorage: 'readonly', sessionStorage: 'readonly', indexedDB: 'readonly' } } },
 );

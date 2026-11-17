@@ -176,6 +176,24 @@ try {
   await page.waitForTimeout(800);
   await shot('14-wizard-deck.png');
 
+  /* 6b. Point at an element, and links into the app */
+  await page.locator('.film').nth(0).click();
+  await page.waitForFunction(() => document.querySelector('.position b')?.textContent === '1');
+  await page.getByRole('button', { name: 'Point at element' }).click();
+  await page.frameLocator('iframe[title="Deck preview"]').locator('h1').click();
+  await page.locator('.comment-target.chosen').waitFor({ timeout: 5000 });
+  check('pointing at an element names it in the comment', /h1 “WardRadar/.test(await page.locator('.comment-target.chosen').innerText()), await page.locator('.comment-target.chosen').innerText());
+  await page.fill('#comment-text', 'replace "WardRadar" with "WardRadar 2"');
+  await page.getByRole('button', { name: 'Add comment' }).click();
+  await page.locator('.comment').first().waitFor({ timeout: 5000 });
+  check('the comment keeps its element', (await page.locator('.comment .comment-target').count()) === 1);
+  await shot('15-point-at-element.png');
+  await page.goto(`http://localhost:${PORT}/?example`);
+  await page.locator('.film').nth(6).waitFor({ timeout: 20000 });
+  check('?example opens the example deck directly', /PumpFinder/.test(await page.locator('.project').innerText()) && !page.url().includes('example'));
+  await page.goto(`http://localhost:${PORT}/?template=plain-light`);
+  check('?template= starts the wizard for that template', await page.getByText('New deck from “Plain light”').isVisible());
+
   /* 7. Optional: a real scripted deck (slides built in JavaScript) */
   if (extraDeck) {
     await page.goto(`http://localhost:${PORT}/`);

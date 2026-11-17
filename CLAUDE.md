@@ -12,6 +12,9 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 - Lint/Format: `npm run lint`
 - Build: `npm run build`
 - Browser-Durchlauf: `npm run build && npm run e2e` (Playwright, braucht Chromium)
+- Evals (live, kostet API-Nutzung): `ANTHROPIC_API_KEY=... npm run eval`. Ohne Key wird übersprungen, die Bewertung selbst testet `npm test`.
+- Pages-Build: `npm run build:pages` (Landingpage aus `site/` plus App unter `app/` nach `dist-pages/`)
+- Screenshots und GIF: `npm run build && npm run media` (braucht Chromium und ffmpeg), schreibt nach `site/media/`
 
 ## Architektur in Kürze
 
@@ -19,6 +22,8 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 - `src/sources/`: Upload, GitHub (laden und committen), Vorlagen, Start-Wizard (`wizard.ts`), Beispiel-Deck mit Dummy-Daten (`example.ts`)
 - `src/ai/`: Provider-Schnittstelle, Claude, Demo-Modus, Review-Runde mit Prüfung
 - `src/ui/`: React-Oberfläche. Einstieg: `src/main.tsx` -> `ui/App.tsx`
+- `evals/`: Fälle (`cases.ts`) und deterministische Bewertung (`lib/score.ts`) für die KI-Überarbeitung
+- `site/`: Landingpage für GitHub Pages, `templates/README.md`: Vertrag für Vorlagen, `docs/TESTING.md`: Teststrategie
 - `docs/ARCHITECTURE.md`: Entwurf mit Begründungen, Fahrplan (M1 bis M3) und Risiken
 - Datenfluss: Quelle -> `DeckFiles` -> `bundleDeck` -> Sandbox-iframe mit Bridge -> `ProbeResult`; Kommentare -> Provider -> `EditOp` -> neue Version
 
@@ -34,6 +39,9 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 - Der Wizard ersetzt nur den Inhalt von `<main>` der Vorlage. Vorlagen brauchen daher ein `<main>` und Styles für `.slide`, `.eyebrow`/`.tag`, `.lede`, `.points`, `.steps`, `.team`, `.screen`.
 - `src/sources/example.ts` ersetzt feste Texte aus dem Wizard-Ergebnis. Ändert sich der Wortlaut in `wizard.ts`, schlägt der Unit-Test „example deck“ fehl: dann die Texte dort nachziehen.
 - Die CSP steht als `<meta>` in `index.html` und gilt auch in der Vorschau (srcdoc erbt sie). `connect-src` erlaubt nur Anthropic, GitHub-API und jsDelivr: Decks, die per `fetch` andere Server ansprechen, melden in der Vorschau einen Fehler. Neuer KI-Anbieter oder neue Quelle heißt: Host dort ergänzen.
+- Vitest liefert CSS-Importe ohne `css: true` als leeren Text. Die Option steht in `vite.config.ts` und `evals/vitest.config.ts` und muss bleiben, sonst sind Vorlagen-CSS in Tests leer.
+- Kein `@types/node` im Projekt: Node-Module in TypeScript-Dateien nur wie in `evals/run.test.ts` laden, Skripte unter `scripts/` sind `.mjs`.
+- Ändert sich die Oberfläche, `npm run media` neu laufen lassen und die Zahlen in `site/index.html` und `docs/TESTING.md` nachziehen.
 - `templates/` wird zur Build-Zeit als Text eingebunden, daher nur Textdateien.
 - Claude-Aufrufe und GitHub-Commits sind noch nicht gegen die echten Dienste getestet.
 

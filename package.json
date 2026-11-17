@@ -11,9 +11,12 @@
     "build:single": "tsc --noEmit && vite build --mode single",
     "preview": "vite preview",
     "typecheck": "tsc --noEmit",
-    "lint": "eslint src tests",
+    "lint": "eslint src tests evals scripts",
     "test": "vitest run",
-    "e2e": "node tests/e2e/run.mjs"
+    "e2e": "node tests/e2e/run.mjs",
+    "eval": "vitest run --config evals/vitest.config.ts",
+    "build:pages": "tsc --noEmit && vite build --outDir dist-pages/app --emptyOutDir && node scripts/pages.mjs",
+    "media": "node scripts/media.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.10.0",
