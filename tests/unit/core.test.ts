@@ -147,6 +147,15 @@ describe('settings', () => {
     expect(loadSettings()).toMatchObject({ apiKey: '', githubToken: '', provider: 'claude' });
   });
 
+  it('never stores or returns a key in the hosted demo', () => {
+    localStorage.clear(); sessionStorage.clear();
+    saveSettings({ ...secret, remember: true }, true);
+    expect(localStorage.getItem('deckhack.settings')).not.toContain('secret');
+    expect(sessionStorage.getItem('deckhack.settings')).not.toContain('secret');
+    saveSettings({ ...secret, remember: true }); // keys left behind by a local build on the same address
+    expect(loadSettings(true)).toMatchObject({ provider: 'demo', apiKey: '', githubToken: '', remember: false });
+  });
+
   it('stores keys on the device after opt-in and removes them everywhere on request', () => {
     localStorage.clear(); sessionStorage.clear();
     saveSettings({ ...secret, remember: true });

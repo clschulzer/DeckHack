@@ -6,6 +6,7 @@
   "license": "MIT",
   "type": "module",
   "scripts": {
+    "start": "vite build && vite preview --open",
     "dev": "vite",
     "build": "tsc --noEmit && vite build",
     "build:single": "tsc --noEmit && vite build --mode single",
@@ -15,8 +16,9 @@
     "test": "vitest run",
     "e2e": "node tests/e2e/run.mjs",
     "eval": "vitest run --config evals/vitest.config.ts",
-    "build:pages": "tsc --noEmit && vite build --outDir dist-pages/app --emptyOutDir && node scripts/pages.mjs",
-    "media": "node scripts/media.mjs"
+    "build:pages": "tsc --noEmit && vite build --mode pages --outDir dist-pages/app --emptyOutDir && node scripts/pages.mjs",
+    "media": "node scripts/media.mjs",
+    "docker:check": "node scripts/container.mjs"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.10.0",

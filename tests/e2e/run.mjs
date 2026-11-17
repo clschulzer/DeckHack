@@ -35,7 +35,7 @@ const check = (name, ok, detail = '') => {
   console.log(`${ok ? 'PASS' : 'FAIL'}  ${name}${detail ? '  (' + detail + ')' : ''}`);
 };
 
-async function waitForServer() {
+async function waitForServer(PORT = 4179) {
   for (let i = 0; i < 60; i++) {
     try { if ((await fetch(`http://localhost:${PORT}/`)).ok) return; } catch { /* not up yet */ }
     await new Promise((r) => setTimeout(r, 250));
@@ -219,6 +219,24 @@ try {
       await page.waitForTimeout(1200);
       await shot('06-scripted-deck-applied.png');
     }
+  }
+
+  // The build that GitHub Pages serves is a demo only: it must not offer any key entry.
+  if (fs.existsSync(path.join(root, 'dist-pages', 'app', 'index.html'))) {
+    const hosted = spawn('npx', ['vite', 'preview', '--outDir', 'dist-pages/app', '--port', '4180', '--strictPort'], { cwd: root, stdio: 'ignore' });
+    try {
+      await waitForServer(4180);
+      await page.goto('http://localhost:4180/');
+      await page.locator('.ai-chip').click();
+      await page.locator('#run-locally').waitFor();
+      check('hosted demo: settings explain how to run locally', (await page.locator('#run-locally').innerText()).includes('docker compose up'));
+      check('hosted demo: no key can be entered', (await page.locator('input[type=password]').count()) === 0);
+      await shot('16-hosted-demo.png');
+    } finally {
+      hosted.kill();
+    }
+  } else {
+    console.log('SKIP  hosted demo checks (run `npm run build:pages` first)');
   }
 
   check('no errors in the app itself', pageErrors.length === 0, pageErrors.join(' | '));

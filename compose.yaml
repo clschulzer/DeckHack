@@ -1,0 +1,6 @@
+# docker compose up  ->  http://localhost:8080
+services:
+  deckhack:
+    build: .
+    ports:
+      - "${DECKHACK_PORT:-8080}:80"

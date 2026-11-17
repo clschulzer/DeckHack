@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { PROVIDERS } from '../ai/rework';
 import { changedPaths } from '../core/edits';
-import { forgetKeys, hasRememberedKeys, MODELS, type Settings } from '../core/settings';
+import { forgetKeys, hasRememberedKeys, HOSTED_DEMO, MODELS, type Settings } from '../core/settings';
 import { readFiles } from '../core/store';
 import type { Project, Snapshot } from '../core/types';
 import { commitToGithub } from '../sources/github';
@@ -33,6 +33,16 @@ export function KeyAdvice() {
   );
 }
 
+/** Shown in the hosted demo wherever the local app asks for a key. */
+export function RunLocally() {
+  return (
+    <div className="notice" role="note" id="run-locally">
+      <b>This hosted page is a demo and takes no keys.</b> To rework decks with your own Claude key and save to GitHub, run DeckHack on your own computer:
+      <pre><code>{'git clone https://github.com/clschulzer/DeckHack\ncd DeckHack\ndocker compose up     # or: npm ci && npm start'}</code></pre>
+    </div>
+  );
+}
+
 /** Shown as soon as "remember" is switched on. */
 export function RememberWarning() {
   return (
@@ -48,6 +58,16 @@ export function SettingsDialog({ settings, onSave, onClose }: { settings: Settin
   const [s, setS] = useState(settings);
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) => setS((prev) => ({ ...prev, [key]: value }));
   const stored = !!(s.apiKey || s.githubToken) || hasRememberedKeys();
+  if (HOSTED_DEMO) {
+    return (
+      <Dialog title="Settings" onClose={onClose}>
+        <div className="form">
+          <p>Comments are applied in demo mode: no AI calls, prepared answers for the example deck, and <code>replace "old" with "new"</code> for your own comments.</p>
+          <RunLocally />
+        </div>
+      </Dialog>
+    );
+  }
   return (
     <Dialog title="Settings" onClose={onClose}>
       <form className="form" onSubmit={(e) => { e.preventDefault(); onSave(s); }}>
@@ -145,7 +165,7 @@ export function SaveDialog({ project, head, snapshots, token, onSaved, onClose }
   return (
     <Dialog title={`Save v${head.seq}`} onClose={onClose}>
       <div className="form">
-        {gh ? (
+        {gh && !HOSTED_DEMO ? (
           <>
             <p>Commit the changed files to <b>{gh.owner}/{gh.repo}</b>. The branch is created from <code>{gh.branch}</code> if it does not exist yet, so nothing lands on your main branch without a pull request.</p>
             <label htmlFor="save-branch">Branch</label>
@@ -155,7 +175,7 @@ export function SaveDialog({ project, head, snapshots, token, onSaved, onClose }
             <div className="row end"><button className="btn primary" disabled={state.busy || !branch || !message} onClick={() => void commit()}>Commit to GitHub</button></div>
           </>
         ) : (
-          <p>This deck was not loaded from GitHub, so it is saved as a download. Every version also stays in this browser.</p>
+          <p>{gh ? 'The hosted demo does not commit to GitHub, so this deck is saved as a download.' : 'This deck was not loaded from GitHub, so it is saved as a download.'} Every version also stays in this browser.</p>
         )}
         <div className="row end"><button className="btn" disabled={state.busy} onClick={() => void download()}>Download .zip</button></div>
         {state.error && <div className="notice error" role="alert">{state.error}</div>}

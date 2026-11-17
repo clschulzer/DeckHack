@@ -9,9 +9,10 @@ DeckHack promises one thing a presenter has to be able to rely on the night befo
 | Types and lint | `npm run typecheck`, `npm run lint` | every pull request | The usual. |
 | Unit tests | `npm test` | every pull request | Edits (exact, unique replacements), paths, bundling, versions in IndexedDB, key storage, the demo provider, the start wizard, the example deck, every template against the template rules, and the eval scoring. |
 | Browser run | `npm run build && npm run e2e` | every pull request | The whole loop in Chromium: open a template, navigate, comment, apply, “only slide N changed”, restore, sandbox and key handling, example deck, wizard, pointing at an element, links into the app. Optional: a real deck as zip (`npm run e2e -- deck.zip "phrase on slide 8"`). |
+| Container | `npm run docker:check` | every pull request | The image builds with `docker compose`, starts, and serves the app with its CSP. |
 | Evals | `ANTHROPIC_API_KEY=… npm run eval` | manual workflow “Evals” | Twelve rework cases against the real model: scope, content, invention. See [evals/README.md](../evals/README.md). |
 
-Numbers on this branch: 51 unit tests, 32 browser checks (35 with an extra deck), 12 eval cases.
+Numbers on this branch: 52 unit tests, 34 browser checks (37 with an extra deck), plus a container check (`npm run docker:check`), 12 eval cases.
 
 ## The three risks and the test that owns each
 

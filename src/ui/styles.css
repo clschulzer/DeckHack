@@ -77,6 +77,8 @@ a { color: var(--action); }
 .brand-mark::after { content: ""; position: absolute; right: -4px; top: -4px; width: 9px; height: 9px; border-radius: 2px; background: var(--note); }
 
 .notice { border: 1px solid var(--line); background: var(--raised); border-radius: var(--radius); padding: 8px 12px; }
+.notice pre { margin: 8px 0 0; overflow-x: auto; font-size: 12.5px; }
+.notice pre code { border: 0; background: none; padding: 0; }
 .notice.error { border-color: var(--bad); background: var(--bad-soft); }
 .notice.warn { border-color: var(--warn); background: var(--warn-soft); font-size: 13px; }
 

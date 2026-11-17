@@ -30,6 +30,8 @@
   ul, ol { padding: 0; list-style: none; }
   a { color: var(--action); }
   img { display: block; max-width: 100%; height: auto; }
+  pre.run { background: var(--raised); border: 1px solid var(--line); border-radius: 8px; padding: 14px 16px; overflow-x: auto; margin: 18px 0; }
+  pre.run code { background: none; border: 0; padding: 0; }
   code { font-family: var(--mono); font-size: .9em; background: var(--raised); border: 1px solid var(--line); border-radius: 4px; padding: 0 5px; }
   :focus-visible { outline: 2px solid var(--action); outline-offset: 3px; }
   .wrap { width: min(1120px, 100% - 40px); margin-inline: auto; }
@@ -100,6 +102,7 @@
   <header class="top">
     <a class="brand" href="./"><span class="mark" aria-hidden="true"></span>DeckHack</a>
     <nav aria-label="Page">
+      <a href="#run">Run it</a>
       <a href="#loop">How it works</a>
       <a href="#wizard">Start wizard</a>
       <a href="#key">Your key</a>
@@ -112,9 +115,9 @@
     <h1>Fix your pitch deck slide by slide.</h1>
     <p class="lead">Your team built the pitch as HTML with an AI. Now it needs twenty small fixes before the jury sees it. DeckHack lets you click through the deck, leave a note on each slide, apply all notes in one round and see exactly which slides changed.</p>
     <div class="cta">
-      <a class="btn primary" href="app/?example">Try the demo</a>
-      <a class="btn" href="app/">Open the app</a>
-      <small>The demo runs on dummy data. No account, no key, nothing to install.</small>
+      <a class="btn primary" href="#run">Run it locally</a>
+      <a class="btn" href="app/?example">Try the demo</a>
+      <small>DeckHack runs on your own computer with one command. The demo here uses dummy data and takes no key.</small>
     </div>
     <figure class="stage">
       <img src="media/demo.gif" width="1280" height="800" alt="DeckHack demo: four comments on a seven-slide deck are applied in one round, the app reports that slides 1, 3, 5 and 7 changed and every other slide is unchanged, then the earlier version is shown again.">
@@ -154,7 +157,7 @@
     </div>
     <div class="cols">
       <div class="card"><h3>Any HTML deck</h3><p>One element per slide, reveal-style sections, or decks that build their scenes in JavaScript and show a counter like 08 / 17. Your deck stays plain HTML and runs without DeckHack.</p></div>
-      <div class="card"><h3>Three ways in</h3><p>Start from a template, drop a file, folder or zip, or paste a GitHub link. <code>app/?deck=github.com/you/repo</code> opens a deck directly.</p></div>
+      <div class="card"><h3>Three ways in</h3><p>Start from a template, drop a file, folder or zip, or paste a GitHub link. <code>localhost:8080/?deck=github.com/you/repo</code> opens a deck directly.</p></div>
       <div class="card"><h3>With and without animation</h3><p>Freeze animations to judge the layout, replay a slide to judge the timing, step through scripted scenes, present fullscreen.</p></div>
     </div>
   </div>
@@ -177,6 +180,19 @@
   </div>
 </section>
 
+<section id="run">
+  <div class="wrap">
+    <p class="kicker">Run it</p>
+    <h2>One command, on your own laptop.</h2>
+    <p>Nobody hosts DeckHack for you, and nobody has to. It is a static app that you start locally, so your key and your deck never pass through someone else's server.</p>
+    <pre class="run"><code>git clone https://github.com/clschulzer/DeckHack
+cd DeckHack
+docker compose up        # then open http://localhost:8080
+# without Docker: npm ci &amp;&amp; npm start</code></pre>
+    <p>The page you are on is only the project site. Its <a href="app/?example">demo</a> lets you click through the review loop with dummy data, without any key entry.</p>
+  </div>
+</section>
+
 <section id="key">
   <div class="wrap">
     <p class="kicker">Your key</p>
@@ -184,7 +200,7 @@
     <div class="two">
       <figure class="shot"><img src="media/settings.png" loading="lazy" alt="The settings dialog with the API key field, the advice to use a dedicated key with a spend limit, and the warning that appears when keys are remembered."></figure>
       <ul class="facts">
-        <li><b>Static app.</b> DeckHack is a page in your browser. The key goes to api.anthropic.com and nowhere else.</li>
+        <li><b>Static app, run locally.</b> DeckHack is a page in your browser, served from your own computer. The key goes to api.anthropic.com and nowhere else.</li>
         <li><b>Gone with the tab.</b> By default the key is forgotten when you close the tab. Remembering it is opt-in, with a clear warning.</li>
         <li><b>Deck code is locked in.</b> Decks run in a sandboxed frame without access to the app, and a content security policy blocks connections to other servers.</li>
         <li><b>Limit the damage.</b> Use a key made only for DeckHack, in a workspace with a spend limit.</li>
@@ -199,8 +215,8 @@
     <h2>The check that tells you what changed is itself checked.</h2>
     <p>Three layers, all in the repository and all run on every pull request except the live evals, which need an API key.</p>
     <div class="cols">
-      <div class="card"><span class="n">51</span><h3>Unit tests</h3><p>Edits, versions, key storage, the wizard, every template against the template rules.</p></div>
-      <div class="card"><span class="n">32</span><h3>Browser checks</h3><p>The whole loop in a real browser: comment, apply, changed slides, restore, sandbox, key handling, wizard.</p></div>
+      <div class="card"><span class="n">52</span><h3>Unit tests</h3><p>Edits, versions, key storage, the wizard, every template against the template rules.</p></div>
+      <div class="card"><span class="n">34</span><h3>Browser checks</h3><p>The whole loop in a real browser: comment, apply, changed slides, restore, sandbox, key handling, wizard.</p></div>
       <div class="card"><span class="n">12</span><h3>Eval cases</h3><p>Did only the commented slide change? Is the change there? Was anything invented? Deterministic scoring, no model grading a model.</p></div>
     </div>
     <p style="margin-top:18px">Honest status: the eval cases and their scoring are tested, but no live run against Claude has been recorded yet. <a href="https://github.com/clschulzer/DeckHack/blob/main/docs/TESTING.md">Test strategy</a> · <a href="https://github.com/clschulzer/DeckHack/tree/main/evals">Evals</a></p>
@@ -218,7 +234,7 @@
       <div class="card"><h3>An AI provider</h3><p>One small interface: comments in, file edits out.</p></div>
     </div>
     <div class="cta" style="margin-top:24px">
-      <a class="btn primary" href="app/?example">Try the demo</a>
+      <a class="btn primary" href="#run">Run it locally</a>
       <a class="btn" href="https://github.com/clschulzer/DeckHack">View on GitHub</a>
     </div>
   </div>
