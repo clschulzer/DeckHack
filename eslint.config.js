@@ -13,5 +13,5 @@ export default tseslint.config(
       'react-hooks/exhaustive-deps': 'warn',
     },
   },
-  { files: ['tests/e2e/**', 'scripts/**', 'evals/**'], languageOptions: { globals: { process: 'readonly', console: 'readonly', document: 'readonly', window: 'readonly', URL: 'readonly', fetch: 'readonly', setTimeout: 'readonly', localStorage: 'readonly', sessionStorage: 'readonly', indexedDB: 'readonly' } } },
+  { files: ['tests/e2e/**', 'scripts/**', 'bin/**', 'evals/**'], languageOptions: { globals: { process: 'readonly', console: 'readonly', document: 'readonly', window: 'readonly', URL: 'readonly', fetch: 'readonly', setTimeout: 'readonly', localStorage: 'readonly', sessionStorage: 'readonly', indexedDB: 'readonly' } } },
 );

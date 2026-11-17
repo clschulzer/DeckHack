@@ -10,7 +10,7 @@ Fünf Entscheidungen tragen den Entwurf:
 
 | Entscheidung | Gewählt | Warum |
 | --- | --- | --- |
-| Betrieb | Statische App im Browser, kein Server, lokal gestartet (`docker compose up` oder `npm start`) | Niemand hostet die App für andere, kein Betreiber sieht Keys oder Decks. GitHub Pages zeigt nur die Landingpage und eine Demo ohne Key-Eingabe |
+| Betrieb | Statische App im Browser, kein Server, lokal gestartet (`docker compose up` oder `npm start`) | Niemand hostet die App für andere, kein Betreiber sieht Keys oder Decks. GitHub Pages zeigt nur die Landingpage, die App läuft dort nicht |
 | Deck-Format | Beliebiger HTML-Ordner, Folien über Adapter erkannt | Euer Aloha-Deck baut Szenen per JavaScript, nicht als `<section>`. Ein festes Format hätte genau das echte Deck ausgeschlossen |
 | Vorschau | Sandbox-iframe ohne Zugriff auf die App | Deck-Code aus Links und von der KI ist nicht vertrauenswürdig und darf den API-Key nie lesen können |
 | KI-Änderung | Edits per Werkzeugaufruf statt ganzer Dateien, danach automatische Prüfung | Schnell und günstig bei 40-KB-Skripten, und die App kann zeigen, welche Folien sich wirklich geändert haben |
@@ -200,7 +200,7 @@ Das Grundgerüst läuft: Der gesamte Review-Ablauf funktioniert im Demo-Modus un
 | Kommentar per Klick auf ein Element, Token-Schätzung vor dem Senden, Deck per Link (`?example`, `?template=`, `?deck=`) | Fertig, getestet (`?deck=` nur bis zum Aufruf, GitHub selbst ungetestet) |
 | Evals: 12 Fälle, deterministische Bewertung, Workflow | Bewertung getestet, kein Live-Lauf |
 | Landingpage, Screenshots und GIF per Skript, Pages-Build | Gebaut, Deployment ungetestet |
-| Lokaler Start mit einem Befehl (`npm start`, `docker compose up`), Demo-Build ohne Key-Eingabe für Pages | Gebaut und getestet, Container-Check in der CI |
+| Lokaler Start mit einem Befehl (`npx github:clschulzer/DeckHack`, `npm start`, `docker compose up`), Pages nur als Landingpage ohne App | Gebaut und getestet, Container-Check in der CI |
 | Vorlagenvertrag `templates/README.md` mit automatischer Prüfung | Fertig |
 | Erste echte Runde mit Claude, Commit nach GitHub (M1) | Offen, braucht Key und Token |
 | Miniaturbilder, Vorher-Nachher-Schieber (M2) | Offen. „Show before/after“ schaltet schon um |
@@ -211,7 +211,7 @@ Was genau getestet ist und was einen echten Key braucht, steht in `docs/TESTING.
 
 | Meilenstein | Inhalt | Fertig, wenn |
 | --- | --- | --- |
-| M1: Erste echte Runde | Eigenes Repo, Deployment auf GitHub Pages, Claude und GitHub-Commit mit echten Zugangsdaten durchspielen, Fehler daraus beheben | Auf dem Aloha-Deck wird aus einem Kommentar in unter 60 Sekunden eine geprüfte neue Fassung, und der Commit liegt auf einem Branch |
+| M1: Erste echte Runde | Eigenes Repo, Landingpage auf GitHub Pages, Claude und GitHub-Commit mit echten Zugangsdaten durchspielen, Fehler daraus beheben | Auf dem Aloha-Deck wird aus einem Kommentar in unter 60 Sekunden eine geprüfte neue Fassung, und der Commit liegt auf einem Branch |
 | M2: Fühlt sich an wie ein Folien-Werkzeug | Miniaturbilder, Kommentar per Klick auf ein Element, Vorher-Nachher-Schieber, Vorlage per KI aus einem Kurzbriefing füllen, Deck per Link öffnen | Eine fremde Person schafft fünf Korrekturen ohne Erklärung |
 | M3: Community-Start | Aloha-Deck als Beispiel, fünf Vorlagen, Adapter für reveal.js und Marp mit Testdecks, Screenshot-Action, Ankündigung | Der erste fremde Pull Request ist gemergt |
 

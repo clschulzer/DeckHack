@@ -19,15 +19,6 @@ export const MODELS = [
   { id: 'claude-fable-5-2', label: 'Claude Fable 5.2', hint: 'Most capable, for whole-deck restructuring.' },
 ] as const;
 
-/**
- * True in the build that GitHub Pages serves (`vite build --mode pages`). That build is a demo only:
- * it never takes, stores or uses a key. To work with your own key, run DeckHack locally.
- */
-export const HOSTED_DEMO = import.meta.env.MODE === 'pages';
-
-/** What the hosted demo is allowed to keep: no provider with a key, no keys. */
-export const demoOnly = (settings: Settings): Settings => ({ ...settings, provider: 'demo', apiKey: '', githubToken: '', remember: false });
-
 const KEY = 'deckhack.settings';
 const DEFAULTS: Settings = { provider: 'demo', model: 'claude-opus-5-5', apiKey: '', githubToken: '', remember: false };
 
@@ -47,13 +38,11 @@ const storageOf = (name: 'localStorage' | 'sessionStorage'): Storage | undefined
   }
 };
 
-export function loadSettings(hosted = HOSTED_DEMO): Settings {
-  const settings = { ...DEFAULTS, ...read(storageOf('localStorage')), ...read(storageOf('sessionStorage')) };
-  return hosted ? demoOnly(settings) : settings;
+export function loadSettings(): Settings {
+  return { ...DEFAULTS, ...read(storageOf('localStorage')), ...read(storageOf('sessionStorage')) };
 }
 
-export function saveSettings(input: Settings, hosted = HOSTED_DEMO): void {
-  const settings = hosted ? demoOnly(input) : input;
+export function saveSettings(settings: Settings): void {
   try {
     storageOf('sessionStorage')?.setItem(KEY, JSON.stringify(settings));
     storageOf('localStorage')?.setItem(KEY, JSON.stringify(settings.remember ? settings : { ...settings, apiKey: '', githubToken: '' }));

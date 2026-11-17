@@ -6,6 +6,7 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 
 - Setup: `npm ci`
 - Lokal starten wie ein Nutzer: `npm start` (baut, liefert aus, öffnet den Browser) oder `docker compose up` (Port 8080, `DECKHACK_PORT` ändert ihn)
+- Start ohne Clone: `npx github:clschulzer/DeckHack` (kein npm-Account, kein Publish: npm holt das Repo, `prepare` baut, `bin/deckhack.mjs` liefert `dist/` auf 127.0.0.1 aus). Prüfen: `npm run npx:check`
 - Container prüfen: `npm run docker:check` (braucht Docker mit Compose, baut, startet und prüft die Auslieferung)
 - Dev-Server: `npm run dev`
 - Tests (alle): `npm test`
@@ -15,7 +16,7 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 - Build: `npm run build`
 - Browser-Durchlauf: `npm run build && npm run e2e` (Playwright, braucht Chromium)
 - Evals (live, kostet API-Nutzung): `ANTHROPIC_API_KEY=... npm run eval`. Ohne Key wird übersprungen, die Bewertung selbst testet `npm test`.
-- Pages-Build: `npm run build:pages` (Landingpage aus `site/` plus Demo-Build der App unter `app/` nach `dist-pages/`)
+- Pages-Build: `npm run build:pages` (nur die Landingpage aus `site/` nach `dist-pages/`, ohne App)
 - Screenshots und GIF: `npm run build && npm run media` (braucht Chromium und ffmpeg), schreibt nach `site/media/`
 
 ## Architektur in Kürze
@@ -41,7 +42,8 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 - Der Wizard ersetzt nur den Inhalt von `<main>` der Vorlage. Vorlagen brauchen daher ein `<main>` und Styles für `.slide`, `.eyebrow`/`.tag`, `.lede`, `.points`, `.steps`, `.team`, `.screen`.
 - `src/sources/example.ts` ersetzt feste Texte aus dem Wizard-Ergebnis. Ändert sich der Wortlaut in `wizard.ts`, schlägt der Unit-Test „example deck“ fehl: dann die Texte dort nachziehen.
 - Die CSP steht als `<meta>` in `index.html` und gilt auch in der Vorschau (srcdoc erbt sie). `connect-src` erlaubt nur Anthropic, GitHub-API und jsDelivr: Decks, die per `fetch` andere Server ansprechen, melden in der Vorschau einen Fehler. Neuer KI-Anbieter oder neue Quelle heißt: Host dort ergänzen.
-- Hauptweg für Nutzer ist der lokale Start, gehostet wird nichts. Der Pages-Build (`--mode pages`, `HOSTED_DEMO` in `src/core/settings.ts`) ist nur eine Demo: keine Key-Eingabe, kein Claude, kein GitHub-Commit. Neue Stellen, die einen Key annehmen, müssen `HOSTED_DEMO` beachten. Der Browser-Durchlauf prüft das, wenn `dist-pages/` existiert.
+- Hauptweg für Nutzer ist der lokale Start, gehostet wird nichts. GitHub Pages zeigt nur die Landingpage: keine App und keine Demo dort, Links auf `app/` in `site/` sind falsch. `scripts/pages.mjs` bricht ab, wenn `dist-pages/app` existiert.
+- `prepare` in `package.json` baut die App bei jedem `npm ci` und bei der Installation per `npx github:`. Dafür müssen `bin` und `files` (`bin`, `dist`) bleiben. Das Dockerfile nutzt deshalb `npm ci --ignore-scripts`. Nicht auf npm veröffentlichen ohne Rückfrage.
 - Vitest liefert CSS-Importe ohne `css: true` als leeren Text. Die Option steht in `vite.config.ts` und `evals/vitest.config.ts` und muss bleiben, sonst sind Vorlagen-CSS in Tests leer.
 - Kein `@types/node` im Projekt: Node-Module in TypeScript-Dateien nur wie in `evals/run.test.ts` laden, Skripte unter `scripts/` sind `.mjs`.
 - Ändert sich die Oberfläche, `npm run media` neu laufen lassen und die Zahlen in `site/index.html` und `docs/TESTING.md` nachziehen.
