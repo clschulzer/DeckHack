@@ -11,5 +11,8 @@ export default defineConfig(({ mode }) => ({
     environment: 'jsdom',
     include: ['tests/unit/**/*.test.ts'],
     setupFiles: ['tests/unit/setup.ts'],
+    // Without this, Vitest turns every .css file into an empty string, also with ?raw, and the
+    // template checks would never see a stylesheet.
+    css: { include: [/.+/] },
   },
 }));

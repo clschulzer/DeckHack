@@ -13,7 +13,8 @@
     "typecheck": "tsc --noEmit",
     "lint": "eslint src tests",
     "test": "vitest run",
-    "e2e": "node tests/e2e/run.mjs"
+    "e2e": "node tests/e2e/run.mjs",
+    "eval:templates": "vitest run --config tests/eval/vitest.config.ts"
   },
   "dependencies": {
     "@anthropic-ai/sdk": "^1.10.0",

@@ -12,6 +12,7 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 - Lint/Format: `npm run lint`
 - Build: `npm run build`
 - Browser-Durchlauf: `npm run build && npm run e2e` (Playwright, braucht Chromium)
+- Vorlagen-Eval: `npm run eval:templates` (jede Vorlage, so wie geliefert und vom Wizard gefüllt, bei 4 Bildschirmgrößen: Tastatur, Überlauf, Kontrast, Animation, offline; Screenshots in `tests/eval/out/`)
 
 ## Architektur in Kürze
 
@@ -35,6 +36,7 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 - `src/sources/example.ts` ersetzt feste Texte aus dem Wizard-Ergebnis. Ändert sich der Wortlaut in `wizard.ts`, schlägt der Unit-Test „example deck“ fehl: dann die Texte dort nachziehen.
 - Die CSP steht als `<meta>` in `index.html` und gilt auch in der Vorschau (srcdoc erbt sie). `connect-src` erlaubt nur Anthropic, GitHub-API und jsDelivr: Decks, die per `fetch` andere Server ansprechen, melden in der Vorschau einen Fehler. Neuer KI-Anbieter oder neue Quelle heißt: Host dort ergänzen.
 - `templates/` wird zur Build-Zeit als Text eingebunden, daher nur Textdateien.
+- Vitest macht aus `.css` sonst leere Strings, auch mit `?raw`. Deshalb steht `css: { include: [/.+/] }` in beiden Vitest-Configs: ohne das sehen die Vorlagen-Tests kein CSS.
 - Claude-Aufrufe und GitHub-Commits sind noch nicht gegen die echten Dienste getestet.
 
 ## Nicht anfassen
