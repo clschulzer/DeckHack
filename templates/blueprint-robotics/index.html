@@ -1,0 +1,88 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Blueprint robotics</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck">
+
+  <section class="slide hook" data-title="Hook">
+    <p class="eyebrow tag">Team Servo · RoboHack 2026 · Challenge 05</p>
+    <h1>Warehouse pickers walk <em>14 km</em> every shift.</h1>
+    <p class="lede">Shelfbot brings the shelf to the picker instead.</p>
+  </section>
+
+  <section class="slide" data-title="Problem">
+    <p class="eyebrow tag">Problem</p>
+    <h2>Most of a picker's day is walking, not picking.</h2>
+    <ul class="points">
+      <li><b>60 %</b> of shift time is spent between shelves.</li>
+      <li>Full automation costs millions and a new building.</li>
+      <li>Small warehouses cannot afford either.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-title="Solution">
+    <p class="eyebrow tag">Solution</p>
+    <h2>A low robot that slides under <em>existing shelves</em>.</h2>
+    <p class="lede">Shelfbot lifts a standard shelf, drives it to the packing station and returns it. No rebuild, no new racks, installed in a weekend.</p>
+  </section>
+
+  <section class="slide demo" data-title="Demo">
+    <p class="eyebrow tag">Demo</p>
+    <h2>Prototype run: order in, shelf out in 50 seconds.</h2>
+    <div class="screen">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <p>Replace this frame with a video of the robot or your live prototype.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-title="How it works">
+    <p class="eyebrow tag">How it works</p>
+    <h2>Sense, plan, act. On a €300 bill of materials.</h2>
+    <ol class="steps">
+      <li><b>Sense</b><span>Floor markers and a depth camera locate every shelf.</span></li>
+      <li><b>Plan</b><span>A fleet planner picks the nearest free robot and path.</span></li>
+      <li><b>Act</b><span>The robot lifts the shelf and drives it to the picker.</span></li>
+    </ol>
+  </section>
+
+  <section class="slide" data-title="Market">
+    <p class="eyebrow tag">Market</p>
+    <h2>Built for the warehouses automation forgot.</h2>
+    <div class="stats">
+      <div><b>150 000</b><span>small warehouses in Europe</span></div>
+      <div><b>€9 k</b><span>per robot, paid back in 7 months</span></div>
+      <div><b>4–10</b><span>robots per site</span></div>
+    </div>
+    <p class="source">Invented example figures. Replace them with numbers you can source.</p>
+  </section>
+
+  <section class="slide" data-title="Team">
+    <p class="eyebrow tag">Team</p>
+    <h2>Mechanics, controls and software. One prototype.</h2>
+    <div class="team">
+      <div><b>Name One</b><span>Mechanical design</span></div>
+      <div><b>Name Two</b><span>Embedded and controls</span></div>
+      <div><b>Name Three</b><span>Fleet software</span></div>
+    </div>
+  </section>
+
+  <section class="slide ask" data-title="Ask">
+    <p class="eyebrow tag">Ask</p>
+    <h2>One pilot warehouse. Three robots. <em>Eight weeks.</em></h2>
+    <p class="lede">team@example.org</p>
+  </section>
+
+</main>
+<footer class="chrome">
+  <div class="titleblock"><span>Project</span><b>Shelfbot</b></div>
+  <div class="titleblock"><span>Sheet</span><b id="counter">01 / 08</b></div>
+  <div class="progress"><i id="progress"></i></div>
+</footer>
+<script src="deck.js"></script>
+</body>
+</html>

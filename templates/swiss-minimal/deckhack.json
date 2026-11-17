@@ -1,0 +1,8 @@
+{
+  "name": "Swiss minimal",
+  "description": "Eight white slides with bold type, a red accent and lots of air. For clean product and impact pitches.",
+  "author": "DeckHack",
+  "colors": ["#ffffff", "#111111", "#e1251b"],
+  "entry": "index.html",
+  "slideSelector": "section.slide"
+}
