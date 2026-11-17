@@ -1,4 +1,9 @@
-/** Settings live in this browser only. Keys are never sent anywhere except to the provider they belong to. */
+/**
+ * Settings live in this browser only. Keys are never sent anywhere except to the provider they belong to.
+ * By default keys are kept in sessionStorage, which ends with the tab. Only when the user opts in
+ * ("remember") are they also written to localStorage, where they outlive the tab and can be read by
+ * any other page served from the same web address.
+ */
 export interface Settings {
   provider: 'demo' | 'claude';
   model: string;
@@ -44,4 +49,17 @@ export function saveSettings(settings: Settings): void {
   } catch {
     /* storage may be unavailable; settings then last for this page view */
   }
+}
+
+/** True when a key is stored beyond this tab session. */
+export function hasRememberedKeys(): boolean {
+  const stored = read(storageOf('localStorage'));
+  return !!(stored.apiKey || stored.githubToken);
+}
+
+/** Removes every stored key, from this tab session and from this device, and turns "remember" off. */
+export function forgetKeys(): Settings {
+  const next: Settings = { ...loadSettings(), apiKey: '', githubToken: '', remember: false };
+  saveSettings(next);
+  return next;
 }

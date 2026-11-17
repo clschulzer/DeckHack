@@ -6,7 +6,7 @@ import type { Template } from '../sources/templates';
 import {
   BEAT_TITLES, buildDeckFromBrief, CRITERIA, EMPTY_BRIEF, EXAMPLE_BRIEF, LENGTHS, planBeats, secondsPerSlide, STORYLINES, type Brief,
 } from '../sources/wizard';
-import { Dialog } from './Dialogs';
+import { Dialog, KeyAdvice, RememberWarning } from './Dialogs';
 
 export interface WizardResult {
   name: string;
@@ -172,14 +172,14 @@ export function Wizard({ template, settings, onCreate, onPlain, onClose }: {
               <div className="form">
                 <label htmlFor="wiz-key">Claude API key</label>
                 <input id="wiz-key" type="password" autoComplete="off" spellCheck={false} placeholder="sk-ant-…" value={ai.apiKey} onChange={(e) => setAi((a) => ({ ...a, apiKey: e.target.value.trim() }))} />
-                <p className="hint">
-                  Create one at <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">console.anthropic.com</a>. It is sent only to api.anthropic.com, straight from this browser. DeckHack has no server.
-                </p>
+                <p className="hint">Sent only to api.anthropic.com, straight from this browser. DeckHack has no server. Kept until you close the tab.</p>
+                <KeyAdvice />
                 <label htmlFor="wiz-model">Model</label>
                 <select id="wiz-model" value={ai.model} onChange={(e) => setAi((a) => ({ ...a, model: e.target.value }))}>
                   {MODELS.map((m) => <option key={m.id} value={m.id}>{m.label}: {m.hint}</option>)}
                 </select>
                 <label className="check"><input id="wiz-remember" type="checkbox" checked={ai.remember} onChange={(e) => setAi((a) => ({ ...a, remember: e.target.checked }))} /> Remember the key on this device</label>
+                {ai.remember && <RememberWarning />}
                 <label className="check"><input id="wiz-first-draft" type="checkbox" checked={firstDraft} disabled={!ai.apiKey} onChange={(e) => setFirstDraft(e.target.checked)} /> Add a comment that asks Claude for a first draft</label>
                 <p className="hint">The comment waits in the review panel. Nothing is sent until you press “Apply round”.</p>
               </div>

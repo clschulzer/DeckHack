@@ -50,6 +50,14 @@ Security model in one paragraph: deck code is untrusted, whether it comes from a
 
 The full design, the roadmap and known risks are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (German).
 
+## Your API key
+
+- By default the key lives in this tab only (`sessionStorage`) and is gone when you close it.
+- “Remember keys on this device” is opt-in and shows a warning: the key is then stored unencrypted in the browser, readable by anyone using that browser profile, by other pages on the same web address and by extensions with access to the page. “Remove stored keys” in Settings deletes it again.
+- Use a key made only for DeckHack, in its own workspace with a spend limit in the Anthropic Console. A lost key can then cost no more than that limit, and you can revoke it without touching anything else.
+- Deck code never sees the key: the preview runs in an iframe with `sandbox="allow-scripts"` (no `allow-same-origin`), and a Content-Security-Policy lets the page and the preview connect only to `api.anthropic.com`, `api.github.com` and `cdn.jsdelivr.net`.
+- If you host DeckHack yourself, give it its own domain or subdomain, so no other site shares its storage.
+
 ## Contributing
 
 Templates, slide adapters for more deck formats and AI providers are the easiest places to start. See [CONTRIBUTING.md](CONTRIBUTING.md).

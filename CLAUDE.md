@@ -33,9 +33,12 @@ Static web app to review and rework HTML pitch decks slide by slide: comments pe
 - Die Vorschau hat einen opaken Origin: kein `localStorage`, kein `history.replaceState`. Die Bridge enthält Shims dafür. Neue Browser-APIs, die Decks brauchen, dort ergänzen.
 - Der Wizard ersetzt nur den Inhalt von `<main>` der Vorlage. Vorlagen brauchen daher ein `<main>` und Styles für `.slide`, `.eyebrow`/`.tag`, `.lede`, `.points`, `.steps`, `.team`, `.screen`.
 - `src/sources/example.ts` ersetzt feste Texte aus dem Wizard-Ergebnis. Ändert sich der Wortlaut in `wizard.ts`, schlägt der Unit-Test „example deck“ fehl: dann die Texte dort nachziehen.
+- Die CSP steht als `<meta>` in `index.html` und gilt auch in der Vorschau (srcdoc erbt sie). `connect-src` erlaubt nur Anthropic, GitHub-API und jsDelivr: Decks, die per `fetch` andere Server ansprechen, melden in der Vorschau einen Fehler. Neuer KI-Anbieter oder neue Quelle heißt: Host dort ergänzen.
 - `templates/` wird zur Build-Zeit als Text eingebunden, daher nur Textdateien.
 - Claude-Aufrufe und GitHub-Commits sind noch nicht gegen die echten Dienste getestet.
 
 ## Nicht anfassen
 
 - `sandbox="allow-scripts"` am Vorschau-iframe nicht erweitern (kein `allow-same-origin`): Das schützt den API-Key.
+- `connect-src` der CSP in `index.html` nicht auf `*` oder `https:` öffnen.
+- Keys nie ohne Opt-in (`remember`) in `localStorage` schreiben. Der Unit-Test „settings“ prüft das.

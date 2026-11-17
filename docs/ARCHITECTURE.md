@@ -78,7 +78,7 @@ Damit ein Deck aus mehreren Dateien in so einem Fenster läuft, baut ein Bundler
 
 Den letzten Punkt hat erst der Test mit dem Aloha-Deck aufgedeckt: Es schreibt bei jedem Folienwechsel `?s=8` in die Adresse und stürzte in der Sandbox zunächst ab.
 
-Bekannte Grenzen: ES-Module mit lokalen Importen werden noch nicht gebündelt. Und auf GitHub Pages teilen sich alle Projekte eines Nutzers einen Origin. Wer „Key merken“ einschaltet, sollte die App deshalb unter einer eigenen Domain betreiben. Standard ist: Key nur für die Dauer des Tabs.
+Bekannte Grenzen: ES-Module mit lokalen Importen werden noch nicht gebündelt. Und auf GitHub Pages teilen sich alle Projekte eines Nutzers einen Origin. Wer „Key merken“ einschaltet, sollte die App deshalb unter einer eigenen Domain betreiben. Standard ist: Key nur für die Dauer des Tabs. Dauerhaftes Merken ist ein Opt-in mit Warnhinweis, „Remove stored keys“ löscht wieder. Die App empfiehlt einen eigenen Key für DeckHack in einem Workspace mit Ausgabelimit. Als zweite Schutzschicht hinter der Sandbox erlaubt eine Content-Security-Policy der Seite und der Vorschau Verbindungen nur zu `api.anthropic.com`, `api.github.com` und `cdn.jsdelivr.net`.
 
 ## KI-Überarbeitung
 

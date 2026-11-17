@@ -78,6 +78,7 @@ a { color: var(--action); }
 
 .notice { border: 1px solid var(--line); background: var(--raised); border-radius: var(--radius); padding: 8px 12px; }
 .notice.error { border-color: var(--bad); background: var(--bad-soft); }
+.notice.warn { border-color: var(--warn); background: var(--warn-soft); font-size: 13px; }
 
 /* ---------- start ---------- */
 .start {

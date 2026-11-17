@@ -7,6 +7,7 @@ import { addSnapshot, createProject, listSnapshots, readFiles } from '../../src/
 import { parseGithubUrl } from '../../src/sources/github';
 import { stripCommonRoot } from '../../src/sources/upload';
 import { demoProvider } from '../../src/ai/demo';
+import { forgetKeys, hasRememberedKeys, loadSettings, saveSettings } from '../../src/core/settings';
 import type { DeckFiles, ProbeResult } from '../../src/core/types';
 
 const deck = (): DeckFiles => ({
@@ -130,5 +131,30 @@ describe('store', () => {
     const v1Files = await readFiles(all[1]!);
     expect((v1Files['index.html'] as { text: string }).text).toContain('<h1>One</h1>');
     expect(Array.from((v1Files['img/logo.png'] as { bytes: Uint8Array }).bytes)).toEqual([1, 2, 3]);
+  });
+});
+
+describe('settings', () => {
+  const secret = { provider: 'claude' as const, model: 'm', apiKey: 'sk-ant-secret', githubToken: 'github_pat_secret' };
+
+  it('keeps keys for the tab session only unless the user opts in', () => {
+    localStorage.clear(); sessionStorage.clear();
+    saveSettings({ ...secret, remember: false });
+    expect(loadSettings().apiKey).toBe('sk-ant-secret');
+    expect(localStorage.getItem('deckhack.settings')).not.toContain('secret');
+    expect(hasRememberedKeys()).toBe(false);
+    sessionStorage.clear(); // the tab is closed
+    expect(loadSettings()).toMatchObject({ apiKey: '', githubToken: '', provider: 'claude' });
+  });
+
+  it('stores keys on the device after opt-in and removes them everywhere on request', () => {
+    localStorage.clear(); sessionStorage.clear();
+    saveSettings({ ...secret, remember: true });
+    sessionStorage.clear();
+    expect(loadSettings().apiKey).toBe('sk-ant-secret');
+    expect(hasRememberedKeys()).toBe(true);
+    expect(forgetKeys()).toMatchObject({ apiKey: '', githubToken: '', remember: false });
+    expect(localStorage.getItem('deckhack.settings')).not.toContain('secret');
+    expect(sessionStorage.getItem('deckhack.settings')).not.toContain('secret');
   });
 });
