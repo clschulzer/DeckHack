@@ -1,12 +1,12 @@
 import { useMemo, useState } from 'react';
 import { PROVIDERS } from '../ai/rework';
-import { MODELS, type Settings } from '../core/settings';
+import { HOSTED_DEMO, MODELS, type Settings } from '../core/settings';
 import type { DeckFiles } from '../core/types';
 import type { Template } from '../sources/templates';
 import {
   BEAT_TITLES, buildDeckFromBrief, CRITERIA, EMPTY_BRIEF, EXAMPLE_BRIEF, LENGTHS, planBeats, secondsPerSlide, STORYLINES, type Brief,
 } from '../sources/wizard';
-import { Dialog, KeyAdvice, RememberWarning } from './Dialogs';
+import { Dialog, KeyAdvice, RememberWarning, RunLocally } from './Dialogs';
 
 export interface WizardResult {
   name: string;
@@ -163,11 +163,12 @@ export function Wizard({ template, settings, onCreate, onPlain, onClose }: {
                 <input id="wiz-provider-demo" type="radio" name="wiz-provider" checked={!usesClaude} onChange={() => setAi((a) => ({ ...a, provider: 'demo' }))} />
                 <b>{PROVIDERS.demo!.label}</b><span>Nothing to set up. Good for clicking through. It can only do <code>replace "old" with "new"</code>.</span>
               </label>
-              <label className={'wiz-option' + (usesClaude ? ' sel' : '')}>
+              {!HOSTED_DEMO && <label className={'wiz-option' + (usesClaude ? ' sel' : '')}>
                 <input id="wiz-provider-claude" type="radio" name="wiz-provider" checked={usesClaude} onChange={() => setAi((a) => ({ ...a, provider: 'claude' }))} />
                 <b>{PROVIDERS.claude!.label}</b><span>Real rework from plain comments. You pay Anthropic for what you use.</span>
-              </label>
+              </label>}
             </div>
+            {HOSTED_DEMO && <RunLocally />}
             {usesClaude && (
               <div className="form">
                 <label htmlFor="wiz-key">Claude API key</label>
@@ -184,7 +185,7 @@ export function Wizard({ template, settings, onCreate, onPlain, onClose }: {
                 <p className="hint">The comment waits in the review panel. Nothing is sent until you press “Apply round”.</p>
               </div>
             )}
-            <p className="hint">You can change this any time under Settings, on the start page and in the editor.</p>
+            {!HOSTED_DEMO && <p className="hint">You can change this any time under Settings, on the start page and in the editor.</p>}
             {plan}
           </div>
         )}

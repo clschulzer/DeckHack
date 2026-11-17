@@ -4,7 +4,7 @@ import { defineConfig } from 'vitest/config';
 export default defineConfig({
   test: {
     environment: 'node',
-    css: { include: [/.+/] }, // keep template CSS readable (?raw), see vite.config.ts
+    css: true, // keep template CSS readable (?raw), see vite.config.ts
     include: ['tests/eval/**/*.eval.ts'],
     testTimeout: 120_000,
     hookTimeout: 60_000,

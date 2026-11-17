@@ -10,7 +10,7 @@ Fünf Entscheidungen tragen den Entwurf:
 
 | Entscheidung | Gewählt | Warum |
 | --- | --- | --- |
-| Betrieb | Statische App im Browser, kein Server | Kostenlos auf GitHub Pages, jeder Fork ist sofort lauffähig, kein Betreiber sieht Keys oder Decks |
+| Betrieb | Statische App im Browser, kein Server, lokal gestartet (`docker compose up` oder `npm start`) | Niemand hostet die App für andere, kein Betreiber sieht Keys oder Decks. GitHub Pages zeigt nur die Landingpage und eine Demo ohne Key-Eingabe |
 | Deck-Format | Beliebiger HTML-Ordner, Folien über Adapter erkannt | Euer Aloha-Deck baut Szenen per JavaScript, nicht als `<section>`. Ein festes Format hätte genau das echte Deck ausgeschlossen |
 | Vorschau | Sandbox-iframe ohne Zugriff auf die App | Deck-Code aus Links und von der KI ist nicht vertrauenswürdig und darf den API-Key nie lesen können |
 | KI-Änderung | Edits per Werkzeugaufruf statt ganzer Dateien, danach automatische Prüfung | Schnell und günstig bei 40-KB-Skripten, und die App kann zeigen, welche Folien sich wirklich geändert haben |
@@ -190,6 +190,24 @@ Das Grundgerüst läuft: Der gesamte Review-Ablauf funktioniert im Demo-Modus un
 | Aloha-Deck als ZIP: 17 Szenen über den Zähler erkannt, Sprung auf Folie 8, keine Fehler, Bilder geladen | Bestätigt |
 | Aloha-Deck: Textänderung auf Folie 8 wird als „nur Folie 8“ gemeldet | Bestätigt |
 | Claude-API aus dem Browser, GitHub laden und committen | Nicht getestet |
+
+**Nachtrag vom Abend des 17.11.2026.** Seit dem ersten Stand dazugekommen und geprüft (51 Unit-Tests, 32 Browser-Prüfungen, 35 mit dem Aloha-Deck):
+
+| Baustein | Stand |
+| --- | --- |
+| Beispiel-Deck mit Dummy-Daten, Start-Wizard | Fertig, getestet |
+| Key-Absicherung: nur Tab-Sitzung, Opt-in mit Warnung, Content-Security-Policy | Fertig, getestet |
+| Kommentar per Klick auf ein Element, Token-Schätzung vor dem Senden, Deck per Link (`?example`, `?template=`, `?deck=`) | Fertig, getestet (`?deck=` nur bis zum Aufruf, GitHub selbst ungetestet) |
+| Evals: 12 Fälle, deterministische Bewertung, Workflow | Bewertung getestet, kein Live-Lauf |
+| Landingpage, Screenshots und GIF per Skript, Pages-Build | Gebaut, Deployment ungetestet |
+| Lokaler Start mit einem Befehl (`npm start`, `docker compose up`), Demo-Build ohne Key-Eingabe für Pages | Gebaut und getestet, Container-Check in der CI |
+| Vorlagenvertrag `templates/README.md` mit automatischer Prüfung | Fertig |
+| Erste echte Runde mit Claude, Commit nach GitHub (M1) | Offen, braucht Key und Token |
+| Miniaturbilder, Vorher-Nachher-Schieber (M2) | Offen. „Show before/after“ schaltet schon um |
+| Aloha-Deck als Beispiel, Adapter-Tests mit echten reveal.js- und Marp-Decks, Screenshot-Action, Ankündigung (M3) | Offen |
+| Weitere Vorlagen | Eigener Pull Request |
+
+Was genau getestet ist und was einen echten Key braucht, steht in `docs/TESTING.md`.
 
 | Meilenstein | Inhalt | Fertig, wenn |
 | --- | --- | --- |

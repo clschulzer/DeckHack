@@ -9,10 +9,8 @@ export default defineConfig(({ mode }) => ({
   build: { outDir: mode === 'single' ? 'dist-single' : 'dist' },
   test: {
     environment: 'jsdom',
+    css: true, // templates are imported as raw text, CSS files included
     include: ['tests/unit/**/*.test.ts'],
     setupFiles: ['tests/unit/setup.ts'],
-    // Without this, Vitest turns every .css file into an empty string, also with ?raw, and the
-    // template checks would never see a stylesheet.
-    css: { include: [/.+/] },
   },
 }));
