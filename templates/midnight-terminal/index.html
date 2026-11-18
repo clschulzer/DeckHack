@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Midnight terminal</title>
+<link rel="stylesheet" href="deck.css">
+</head>
+<body>
+<main class="deck">
+
+  <section class="slide hook" data-title="Hook">
+    <p class="eyebrow tag">Team Byteforce · DevHack 2026 · Track: Developer tools</p>
+    <h1>On-call engineers lose <em>3 hours</em> per incident reading logs.</h1>
+    <p class="lede">LogLens reads them for you and points at the line that broke.</p>
+  </section>
+
+  <section class="slide" data-title="Problem">
+    <p class="eyebrow tag">The problem</p>
+    <h2>Logs grow faster than anyone can read them.</h2>
+    <ul class="points">
+      <li><b>40 GB</b> of logs per service and day.</li>
+      <li>The root cause hides in one line out of millions.</li>
+      <li>Customers wait while engineers grep.</li>
+    </ul>
+  </section>
+
+  <section class="slide" data-title="Solution">
+    <p class="eyebrow tag">Our solution</p>
+    <h2>Paste the alert. Get the <em>one line</em> that matters.</h2>
+    <p class="lede">LogLens clusters millions of lines, spots what is new since the last deploy and explains it in plain words.</p>
+  </section>
+
+  <section class="slide demo" data-title="Demo">
+    <p class="eyebrow tag">Live demo</p>
+    <h2>From alert to root cause in 40 seconds.</h2>
+    <div class="screen">
+      <div class="bar"><i></i><i></i><i></i></div>
+      <p>Replace this frame with a screenshot, a video or your live prototype.</p>
+    </div>
+  </section>
+
+  <section class="slide" data-title="How it works">
+    <p class="eyebrow tag">How it works</p>
+    <h2>Three stages, all running today.</h2>
+    <ol class="steps">
+      <li><b>Ingest</b><span>Streams logs from any shipper without new agents.</span></li>
+      <li><b>Cluster</b><span>Groups lines by template and flags new ones.</span></li>
+      <li><b>Explain</b><span>Writes a two-line summary into the incident channel.</span></li>
+    </ol>
+  </section>
+
+  <section class="slide" data-title="Market">
+    <p class="eyebrow tag">Market</p>
+    <h2>Every team that runs software is on call.</h2>
+    <div class="stats">
+      <div><b>27 M</b><span>developers worldwide</span></div>
+      <div><b>€9 B</b><span>spent on observability per year</span></div>
+      <div><b>1 in 5</b><span>teams plan to switch tools</span></div>
+    </div>
+    <p class="source">Invented example figures. Replace them with numbers you can source.</p>
+  </section>
+
+  <section class="slide" data-title="Team">
+    <p class="eyebrow tag">Why us</p>
+    <h2>We were the ones paged at 3 a.m.</h2>
+    <div class="team">
+      <div><b>Name One</b><span>Backend, ex-SRE</span></div>
+      <div><b>Name Two</b><span>Machine learning</span></div>
+      <div><b>Name Three</b><span>Product and design</span></div>
+    </div>
+  </section>
+
+  <section class="slide ask" data-title="Ask">
+    <p class="eyebrow tag">What we need</p>
+    <h2>Three pilot teams. Thirty days. <em>Let us prove it.</em></h2>
+    <p class="lede">team@example.org</p>
+  </section>
+
+</main>
+<footer class="chrome"><span class="prompt">~/pitch $</span><span id="counter">01 / 08</span><div class="progress"><i id="progress"></i></div></footer>
+<script src="deck.js"></script>
+</body>
+</html>

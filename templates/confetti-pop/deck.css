@@ -1,0 +1,90 @@
+/* Confetti pop. Plain CSS, no build step. Change the tokens to restyle the whole deck.
+   Slides cycle through the five --bg colours on their own, so added slides stay colourful. */
+:root {
+  --ink: #2b1846;
+  --muted: #4b3a63;
+  --pink: #ff4f9a;
+  --mint: #38d9a9;
+  --sky: #74c0fc;
+  --sun: #ffe066;
+  --paper: #fffaf0;
+  --round: "Avenir Next Rounded", "Arial Rounded MT Bold", "Nunito", "Trebuchet MS", system-ui, sans-serif;
+}
+* { box-sizing: border-box; margin: 0; }
+html, body { height: 100%; background: var(--sun); color: var(--ink); font-family: var(--round); }
+.deck { height: 100vh; overflow-y: auto; scroll-snap-type: y mandatory; scrollbar-width: none; }
+.deck::-webkit-scrollbar { display: none; }
+.slide {
+  --bg: var(--sun);
+  position: relative; overflow: hidden; height: 100vh; scroll-snap-align: start; padding: 9vh 9vw 14vh;
+  display: flex; flex-direction: column; justify-content: center; align-items: flex-start; gap: 3vh; background: var(--bg);
+}
+.slide:nth-child(5n + 2) { --bg: #ffd6e7; }
+.slide:nth-child(5n + 3) { --bg: #c3fae8; }
+.slide:nth-child(5n + 4) { --bg: #e5dbff; }
+.slide:nth-child(5n + 5) { --bg: #d0ebff; }
+/* Confetti blobs in the corners. */
+.slide::before, .slide::after { content: ""; position: absolute; border-radius: 50%; pointer-events: none; border: .35vw solid var(--ink); }
+.slide::before { width: 22vw; height: 22vw; right: -6vw; top: -7vw; background: var(--pink); }
+.slide::after { width: 9vw; height: 9vw; right: 12vw; bottom: 8vh; background: var(--mint); }
+.slide:nth-child(even)::before { background: var(--sky); right: auto; left: 64vw; top: -11vw; }
+.slide:nth-child(even)::after { background: var(--sun); right: 5vw; bottom: 16vh; }
+.slide > * { position: relative; z-index: 1; }
+
+.eyebrow, .tag { font-size: clamp(11px, 1.3vw, 19px); font-weight: 800; color: var(--ink); background: #ffffff; border: .2vw solid var(--ink); border-radius: 999px; padding: .5vh 1.2vw; transform: rotate(-2deg); box-shadow: .3vw .3vw 0 var(--ink); }
+h1 { font-size: clamp(30px, 5.8vw, 92px); line-height: 1.05; letter-spacing: -.02em; font-weight: 900; max-width: 15ch; text-wrap: balance; }
+h2 { font-size: clamp(24px, 4.4vw, 70px); line-height: 1.08; letter-spacing: -.015em; font-weight: 900; max-width: 18ch; text-wrap: balance; }
+em { font-style: normal; padding: 0 .12em; border-radius: .2em; box-shadow: inset 0 -.42em 0 var(--pink); box-decoration-break: clone; -webkit-box-decoration-break: clone; }
+h1 em { white-space: nowrap; }
+.lede { font-size: clamp(15px, 2.1vw, 32px); line-height: 1.35; color: var(--muted); max-width: 34ch; font-weight: 600; }
+
+.points { list-style: none; padding: 0; display: grid; gap: 1.4vh; font-size: clamp(14px, 1.9vw, 29px); color: var(--ink); font-weight: 600; }
+.points li { background: #ffffff; border: .2vw solid var(--ink); border-radius: 1.2vw; padding: 1.2vh 1.4vw; box-shadow: .35vw .35vw 0 var(--ink); }
+.points li:nth-child(2) { transform: rotate(.8deg); margin-left: 1.5vw; }
+.points li:nth-child(3) { transform: rotate(-.6deg); margin-left: .5vw; }
+.points b { color: #c2185b; }
+
+.steps { list-style: none; padding: 0; display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw; counter-reset: step; align-self: stretch; }
+.steps li { background: #ffffff; border: .2vw solid var(--ink); border-radius: 1.4vw; padding: 2.4vh 1.6vw; display: grid; align-content: start; gap: 1vh; counter-increment: step; box-shadow: .4vw .4vw 0 var(--ink); }
+.steps li:nth-child(2) { transform: rotate(1.2deg); }
+.steps li:nth-child(3) { transform: rotate(-1deg); }
+.steps li::before { content: counter(step); display: grid; place-items: center; width: clamp(26px, 3.2vw, 50px); height: clamp(26px, 3.2vw, 50px); border-radius: 50%; background: var(--pink); color: var(--ink); border: .2vw solid var(--ink); font-weight: 900; font-size: clamp(13px, 1.6vw, 25px); }
+.steps li:nth-child(2)::before { background: var(--mint); }
+.steps li:nth-child(3)::before { background: var(--sky); }
+.steps b { font-size: clamp(16px, 2.2vw, 34px); font-weight: 900; }
+.steps span, .team span { font-size: clamp(12px, 1.45vw, 22px); line-height: 1.35; color: var(--muted); font-weight: 600; }
+
+.stats { display: grid; grid-template-columns: repeat(3, 1fr); gap: 2vw; align-self: stretch; }
+.stats div { background: #ffffff; border: .2vw solid var(--ink); border-radius: 1.4vw; padding: 2vh 1.6vw; display: grid; gap: .6vh; box-shadow: .4vw .4vw 0 var(--ink); }
+.stats b { font-size: clamp(22px, 3.8vw, 60px); font-weight: 900; line-height: 1.05; }
+.stats span { font-size: clamp(12px, 1.4vw, 21px); color: var(--muted); font-weight: 600; }
+.source { font-size: clamp(10px, 1vw, 15px); color: var(--muted); font-weight: 600; }
+
+.team { display: flex; gap: 1.6vw; flex-wrap: wrap; }
+.team div { display: grid; gap: .4vh; background: #ffffff; border: .2vw solid var(--ink); border-radius: 999px; padding: 1.4vh 2vw; box-shadow: .3vw .3vw 0 var(--ink); }
+.team div:nth-child(odd) { transform: rotate(-1.5deg); }
+.team div:nth-child(even) { transform: rotate(1.5deg); }
+.team b { font-size: clamp(15px, 1.9vw, 29px); font-weight: 900; }
+
+.screen { align-self: stretch; flex: 1; min-height: 0; max-height: 44vh; border: .25vw solid var(--ink); border-radius: 1.6vw; background: #ffffff; display: grid; grid-template-rows: auto 1fr; overflow: hidden; box-shadow: .5vw .5vw 0 var(--ink); }
+.screen .bar { display: flex; gap: .5vw; padding: .9vw; border-bottom: .25vw solid var(--ink); background: var(--sun); }
+.screen .bar i { width: .9vw; height: .9vw; border-radius: 50%; background: var(--pink); border: .15vw solid var(--ink); }
+.screen .bar i:nth-child(2) { background: var(--mint); } .screen .bar i:nth-child(3) { background: var(--sky); }
+.screen p { place-self: center; color: var(--muted); font-size: clamp(12px, 1.45vw, 22px); padding: 2vw; text-align: center; font-weight: 600; }
+
+.chrome { position: fixed; left: 9vw; right: 9vw; bottom: 5vh; display: flex; align-items: center; gap: 1.6vw; font-size: clamp(10px, 1.1vw, 17px); font-weight: 800; color: var(--ink); font-variant-numeric: tabular-nums; z-index: 2; }
+.progress { flex: 1; height: 1.2vh; border: .18vw solid var(--ink); border-radius: 999px; background: #ffffff; overflow: hidden; }
+.progress i { display: block; height: 100%; width: 0; background: var(--pink); transition: width .45s cubic-bezier(.3, 1.6, .5, 1); }
+
+/* Entrance: content pops in with a bounce, the blobs float. Off with data-motion="off" on <html>. */
+@media (prefers-reduced-motion: no-preference) {
+  .js:not([data-motion="off"]) .slide > * { opacity: 0; }
+  .js:not([data-motion="off"]) .slide.active > * { animation: pop .7s cubic-bezier(.3, 1.5, .5, 1) both; }
+  .js:not([data-motion="off"]) .slide.active > :nth-child(2) { animation-delay: .1s; }
+  .js:not([data-motion="off"]) .slide.active > :nth-child(3) { animation-delay: .22s; }
+  .js:not([data-motion="off"]) .slide.active > :nth-child(4) { animation-delay: .34s; }
+  .js:not([data-motion="off"]) .slide.active::before { animation: float 6s ease-in-out infinite; }
+  .js:not([data-motion="off"]) .slide.active::after { animation: float 4.5s ease-in-out infinite reverse; }
+}
+@keyframes pop { from { opacity: 0; transform: translateY(3vh) scale(.92) rotate(-2deg); } to { opacity: 1; } }
+@keyframes float { 50% { translate: 0 -2.4vh; } }

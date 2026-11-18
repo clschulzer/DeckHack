@@ -3,4 +3,5 @@ dist
 dist-single
 tests/e2e/out
 .env
+tests/eval/out/
 dist-pages

@@ -11,7 +11,27 @@ concurrency:
   group: pages
   cancel-in-progress: true
 jobs:
+  # Deploying only works once Pages is switched on with source "GitHub Actions" in the repository
+  # settings. Until then the deployment is skipped instead of failing on every push to main.
+  check:
+    runs-on: ubuntu-latest
+    outputs:
+      enabled: ${{ steps.pages.outputs.enabled }}
+    steps:
+      - id: pages
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          type=$(gh api "repos/${{ github.repository }}/pages" --jq .build_type 2>/dev/null || true)
+          if [ "$type" = "workflow" ]; then
+            echo "enabled=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "enabled=false" >> "$GITHUB_OUTPUT"
+            echo "::notice::GitHub Pages is not enabled with source 'GitHub Actions' (Settings > Pages), so the landing page is not deployed."
+          fi
   deploy:
+    needs: check
+    if: needs.check.outputs.enabled == 'true'
     runs-on: ubuntu-latest
     environment:
       name: github-pages
@@ -21,8 +41,6 @@ jobs:
       - uses: actions/setup-node@v4
         with:
           node-version: 22
-          cache: npm
-      - run: npm ci
       - run: npm run build:pages
       - uses: actions/upload-pages-artifact@v3
         with:

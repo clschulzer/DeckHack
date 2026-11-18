@@ -1,0 +1,8 @@
+{
+  "name": "Confetti pop",
+  "description": "Eight bright slides with candy colours, chunky cards and bouncy motion. For consumer, education and social apps.",
+  "author": "DeckHack",
+  "colors": ["#ffe066", "#2b1846", "#ff4f9a", "#38d9a9"],
+  "entry": "index.html",
+  "slideSelector": "section.slide"
+}

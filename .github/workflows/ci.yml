@@ -23,6 +23,7 @@ jobs:
       - run: npx playwright install --with-deps chromium
       - run: npm run e2e
       - run: npm run npx:check
+      - run: npm run eval:templates
   container:
     runs-on: ubuntu-latest
     steps:
