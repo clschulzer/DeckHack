@@ -2,58 +2,61 @@
 
 Static web app to review and rework HTML pitch decks slide by slide: comments per slide, AI edits, version history. No backend. Goal right now: a usable first release for hackathon teams and a base for community contributions.
 
-## Befehle
+## Commands
 
 - Setup: `npm ci`
-- Lokal starten wie ein Nutzer: `npm start` (baut, liefert aus, öffnet den Browser) oder `docker compose up` (Port 8080, `DECKHACK_PORT` ändert ihn)
-- Start ohne Clone: `npx github:clschulzer/DeckHack` (kein npm-Account, kein Publish: npm holt das Repo, `prepare` baut, `bin/deckhack.mjs` liefert `dist/` auf 127.0.0.1 aus). Prüfen: `npm run npx:check`
-- Container prüfen: `npm run docker:check` (braucht Docker mit Compose, baut, startet und prüft die Auslieferung)
-- Dev-Server: `npm run dev`
-- Tests (alle): `npm test`
-- Einzelner Test: `npx vitest run tests/unit/core.test.ts -t "edits"`
+- Run locally like a user: `npm start` (builds, serves, opens the browser) or `docker compose up` (port 8080, `DECKHACK_PORT` changes it)
+- Start without a clone: `npx github:clschulzer/DeckHack` (no npm account, no publish: npm fetches the repo, `prepare` builds, `bin/deckhack.mjs` serves `dist/` on 127.0.0.1). Check: `npm run npx:check`
+- Check the container: `npm run docker:check` (needs Docker with Compose; builds, starts and checks what is served)
+- Dev server: `npm run dev`
+- Tests (all): `npm test`
+- Single test: `npx vitest run tests/unit/core.test.ts -t "edits"`
 - Typecheck: `npm run typecheck`
-- Lint/Format: `npm run lint`
+- Lint/format: `npm run lint`
 - Build: `npm run build`
-- Browser-Durchlauf: `npm run build && npm run e2e` (Playwright, braucht Chromium)
-- Vorlagen-Eval: `npm run eval:templates` (jede Vorlage, so wie geliefert und vom Wizard gefüllt, bei 4 Bildschirmgrößen: Tastatur, Überlauf, Kontrast, Animation, offline; Screenshots in `tests/eval/out/`)
-- Evals (live, kostet API-Nutzung): `ANTHROPIC_API_KEY=... npm run eval`. Ohne Key wird übersprungen, die Bewertung selbst testet `npm test`.
-- Pages-Build: `npm run build:pages` (nur die Landingpage aus `site/` nach `dist-pages/`, ohne App)
-- Screenshots und GIF: `npm run build && npm run media` (braucht Chromium und ffmpeg), schreibt nach `site/media/`
+- Browser run: `npm run build && npm run e2e` (Playwright, needs Chromium)
+- Template eval: `npm run eval:templates` (every template, as shipped and as filled by the wizard, at 4 screen sizes: keyboard, overflow, contrast, animation, offline; screenshots in `tests/eval/out/`)
+- Evals (live, costs API usage): `ANTHROPIC_API_KEY=... npm run eval`. Skipped without a key; the scoring itself is tested by `npm test`.
+- Pages build: `npm run build:pages` (only the landing page from `site/` into `dist-pages/`, without the app)
+- Screenshots and GIF: `npm run build && npm run media` (needs Chromium and ffmpeg), writes to `site/media/`
 
-## Architektur in Kürze
+## Architecture in brief
 
-- `src/core/`: Deck-Modell, Edits, Vorschau-Bundler, Bridge im iframe, Versionen (IndexedDB)
-- `src/sources/`: Upload, GitHub (laden und committen), Vorlagen, Start-Wizard (`wizard.ts`), Beispiel-Deck mit Dummy-Daten (`example.ts`)
-- `src/ai/`: Provider-Schnittstelle, Claude, Demo-Modus, Review-Runde mit Prüfung
-- `src/ui/`: React-Oberfläche. Einstieg: `src/main.tsx` -> `ui/App.tsx`
-- `evals/`: Fälle (`cases.ts`) und deterministische Bewertung (`lib/score.ts`) für die KI-Überarbeitung
-- `site/`: Landingpage für GitHub Pages, `templates/README.md`: Vertrag für Vorlagen, `docs/TESTING.md`: Teststrategie
-- `docs/ARCHITECTURE.md`: Entwurf mit Begründungen, Fahrplan (M1 bis M3) und Risiken
-- Datenfluss: Quelle -> `DeckFiles` -> `bundleDeck` -> Sandbox-iframe mit Bridge -> `ProbeResult`; Kommentare -> Provider -> `EditOp` -> neue Version
+- `src/core/`: deck model, edits, preview bundler, bridge inside the iframe, versions (IndexedDB)
+- `src/sources/`: upload, GitHub (load and commit), templates, start wizard (`wizard.ts`), example deck with dummy data (`example.ts`)
+- `src/ai/`: provider interface, Claude, demo mode, review round with check
+- `src/ui/`: React interface. Entry: `src/main.tsx` -> `ui/App.tsx`
+- `evals/`: cases (`cases.ts`) and deterministic scoring (`lib/score.ts`) for the AI rework
+- `site/`: landing page for GitHub Pages (logo in `site/logo.svg`), `templates/README.md`: contract for templates, `docs/TESTING.md`: test strategy
+- `docs/ARCHITECTURE.md`: design with reasoning, roadmap (M1 to M3) and risks
+- Data flow: source -> `DeckFiles` -> `bundleDeck` -> sandboxed iframe with bridge -> `ProbeResult`; comments -> provider -> `EditOp` -> new version
 
-## Konventionen
+## Conventions
 
-- Neue Folienerkennung in `src/core/bridge.inframe.js` (`detect`), neuer KI-Anbieter als `Provider` in `src/ai/`.
-- Jede Änderung am Deck läuft über `applyEdit` und endet in `addSnapshot`. Nie Versionen überschreiben.
+- Everything on GitHub (README, docs, landing page, code, commits) is in English.
+- New slide detection goes in `src/core/bridge.inframe.js` (`detect`), a new AI provider as a `Provider` in `src/ai/`.
+- Every change to the deck goes through `applyEdit` and ends in `addSnapshot`. Never overwrite versions.
+- The logo is the palm from the Aloha Robotics team: `site/logo.svg`. The app uses the same SVG as a data URI in `src/ui/styles.css` (`.brand-mark`) and as the favicon in `index.html`; change all three together.
 
-## Stolpersteine
+## Gotchas
 
-- `src/core/bridge.inframe.js` ist bewusst ES5-artiges JavaScript ohne Imports: Es wird als Text (`?raw`) in die Vorschau injiziert. Der Platzhalter `__PC_CONFIG__` darf nur einmal im File stehen, auch nicht in Kommentaren.
-- Die Vorschau hat einen opaken Origin: kein `localStorage`, kein `history.replaceState`. Die Bridge enthält Shims dafür. Neue Browser-APIs, die Decks brauchen, dort ergänzen.
-- Der Wizard ersetzt nur den Inhalt von `<main>` der Vorlage. Vorlagen brauchen daher ein `<main>` und Styles für `.slide`, `.eyebrow`/`.tag`, `.lede`, `.points`, `.steps`, `.team`, `.screen`.
-- `src/sources/example.ts` ersetzt feste Texte aus dem Wizard-Ergebnis. Ändert sich der Wortlaut in `wizard.ts`, schlägt der Unit-Test „example deck“ fehl: dann die Texte dort nachziehen.
-- Die CSP steht als `<meta>` in `index.html` und gilt auch in der Vorschau (srcdoc erbt sie). `connect-src` erlaubt nur Anthropic, GitHub-API und jsDelivr: Decks, die per `fetch` andere Server ansprechen, melden in der Vorschau einen Fehler. Neuer KI-Anbieter oder neue Quelle heißt: Host dort ergänzen.
-- Hauptweg für Nutzer ist der lokale Start, gehostet wird nichts. GitHub Pages zeigt nur die Landingpage: keine App und keine Demo dort, Links auf `app/` in `site/` sind falsch. `scripts/pages.mjs` bricht ab, wenn `dist-pages/app` existiert.
-- `prepare` in `package.json` baut die App bei jedem `npm ci` und bei der Installation per `npx github:`. Dafür müssen `bin` und `files` (`bin`, `dist`) bleiben. Das Dockerfile nutzt deshalb `npm ci --ignore-scripts`. Nicht auf npm veröffentlichen ohne Rückfrage.
-- Vitest liefert CSS-Importe ohne `css: true` als leeren Text. Die Option steht in `vite.config.ts`, `evals/vitest.config.ts` und `tests/eval/vitest.config.ts` und muss bleiben, sonst sind Vorlagen-CSS in Tests leer.
-- Der Pages-Workflow prüft zuerst, ob Pages mit Quelle „GitHub Actions“ aktiv ist, und überspringt sonst das Deployment, statt auf `main` rot zu werden. Der Evals-Workflow läuft nur von Hand.
-- Kein `@types/node` im Projekt: Node-Module in TypeScript-Dateien nur wie in `evals/run.test.ts` laden, Skripte unter `scripts/` sind `.mjs`.
-- Ändert sich die Oberfläche, `npm run media` neu laufen lassen und die Zahlen in `site/index.html` und `docs/TESTING.md` nachziehen.
-- `templates/` wird zur Build-Zeit als Text eingebunden, daher nur Textdateien.
-- Claude-Aufrufe und GitHub-Commits sind noch nicht gegen die echten Dienste getestet.
+- `src/core/bridge.inframe.js` is deliberately ES5-style JavaScript without imports: it is injected into the preview as text (`?raw`). The placeholder `__PC_CONFIG__` may appear only once in the file, not even in comments.
+- The preview has an opaque origin: no `localStorage`, no `history.replaceState`. The bridge contains shims for them. Add further browser APIs that decks need there.
+- The wizard only replaces the content of the template's `<main>`. Templates therefore need a `<main>` and styles for `.slide`, `.eyebrow`/`.tag`, `.lede`, `.points`, `.steps`, `.team`, `.screen`.
+- `src/sources/example.ts` replaces fixed texts from the wizard output. If the wording in `wizard.ts` changes, the unit test "example deck" fails: then update the texts there.
+- The CSP is a `<meta>` in `index.html` and also applies in the preview (srcdoc inherits it). `connect-src` only allows Anthropic, the GitHub API and jsDelivr: decks that `fetch` other servers report an error in the preview. A new AI provider or a new source means adding its host there.
+- The main path for users is the local start, nothing is hosted. GitHub Pages only shows the landing page: no app and no demo there, links to `app/` in `site/` are wrong. `scripts/pages.mjs` aborts if `dist-pages/app` exists.
+- `prepare` in `package.json` builds the app on every `npm ci` and on installation via `npx github:`. For that, `bin` and `files` (`bin`, `dist`) must stay. The Dockerfile therefore uses `npm ci --ignore-scripts`. Do not publish to npm without asking.
+- Without `css: true`, Vitest delivers CSS imports as empty text. The option is set in `vite.config.ts`, `evals/vitest.config.ts` and `tests/eval/vitest.config.ts` and must stay, otherwise template CSS is empty in tests.
+- The Pages workflow first checks whether Pages is enabled with source "GitHub Actions" and otherwise skips the deployment instead of turning `main` red. The Evals workflow only runs manually.
+- No `@types/node` in the project: load Node modules in TypeScript files only the way `evals/run.test.ts` does; scripts under `scripts/` are `.mjs`.
+- If the interface changes, rerun `npm run media` and update the numbers in `site/index.html` and `docs/TESTING.md`.
+- `templates/` is included as text at build time, so text files only.
+- Claude calls and GitHub commits have not been tested against the real services yet.
+- The eval case `german-comment` in `evals/cases.ts` is German on purpose: it checks that a comment in another language is understood.
 
-## Nicht anfassen
+## Do not touch
 
-- `sandbox="allow-scripts"` am Vorschau-iframe nicht erweitern (kein `allow-same-origin`): Das schützt den API-Key.
-- `connect-src` der CSP in `index.html` nicht auf `*` oder `https:` öffnen.
-- Keys nie ohne Opt-in (`remember`) in `localStorage` schreiben. Der Unit-Test „settings“ prüft das.
+- Do not extend `sandbox="allow-scripts"` on the preview iframe (no `allow-same-origin`): it protects the API key.
+- Do not open `connect-src` in the CSP in `index.html` to `*` or `https:`.
+- Never write keys to `localStorage` without opt-in (`remember`). The unit test "settings" checks this.

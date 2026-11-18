@@ -1,235 +1,230 @@
-# DeckHack: Architektur und Design
+# DeckHack: architecture and design
 
-Stand: 17.11.2026. Entwurf, auf Deutsch; README und Code sind englisch.
+As of 17 Nov 2026. Design document; the reasoning behind the main choices, the roadmap and known risks.
 
-## Kurzfassung
+## Summary
 
-DeckHack ist eine statische Web-App ohne eigenes Backend: Sie zeigt ein HTML-Deck Folie für Folie, sammelt Kommentare direkt an der Folie, lässt eine KI die Änderungen als gezielte Datei-Edits einbauen und hält jede Fassung als Version fest. Das Deck bleibt ein normaler Ordner aus HTML, CSS und JS in deinem GitHub-Repo und läuft ohne DeckHack weiter.
+DeckHack is a static web app without a backend of its own. It shows an HTML deck slide by slide, collects comments right on the slide, lets an AI work the changes in as targeted file edits and keeps every state as a version. The deck stays a normal folder of HTML, CSS and JS in your GitHub repository and keeps running without DeckHack.
 
-Fünf Entscheidungen tragen den Entwurf:
+Five decisions carry the design:
 
-| Entscheidung | Gewählt | Warum |
+| Decision | Chosen | Why |
 | --- | --- | --- |
-| Betrieb | Statische App im Browser, kein Server, lokal gestartet (`docker compose up` oder `npm start`) | Niemand hostet die App für andere, kein Betreiber sieht Keys oder Decks. GitHub Pages zeigt nur die Landingpage, die App läuft dort nicht |
-| Deck-Format | Beliebiger HTML-Ordner, Folien über Adapter erkannt | Euer Aloha-Deck baut Szenen per JavaScript, nicht als `<section>`. Ein festes Format hätte genau das echte Deck ausgeschlossen |
-| Vorschau | Sandbox-iframe ohne Zugriff auf die App | Deck-Code aus Links und von der KI ist nicht vertrauenswürdig und darf den API-Key nie lesen können |
-| KI-Änderung | Edits per Werkzeugaufruf statt ganzer Dateien, danach automatische Prüfung | Schnell und günstig bei 40-KB-Skripten, und die App kann zeigen, welche Folien sich wirklich geändert haben |
-| Versionen | Lokale Snapshots für jeden Schritt, GitHub-Commit beim Speichern | Zurückspringen kostet nichts, das Repo bleibt die Wahrheit und das Backup |
+| Operation | Static app in the browser, no server, started locally (`npx github:clschulzer/DeckHack`, `docker compose up` or `npm start`) | Nobody hosts the app for others, so no operator ever sees keys or decks. GitHub Pages only shows the landing page, the app does not run there |
+| Deck format | Any HTML folder, slides detected by adapters | The hackathon deck DeckHack was built for creates its scenes in JavaScript, not as `<section>` elements. A fixed format would have excluded exactly the real deck |
+| Preview | Sandboxed iframe without access to the app | Deck code from links and from the AI is untrusted and must never be able to read the API key |
+| AI change | Edits through tool calls instead of whole files, followed by an automatic check | Fast and cheap with 40 KB scripts, and the app can show which slides really changed |
+| Versions | Local snapshots for every step, a GitHub commit on save | Going back costs nothing, the repository stays the source of truth and the backup |
 
-**Geschärfter Auftrag.** Ziel dahinter: Ein Team soll in der letzten Nacht vor dem Pitch zwanzig kleine Korrekturen in Minuten statt in einem langen Chat-Monolog durchbringen, ohne dass dabei eine andere Folie kaputtgeht. Als Tätigkeit: durchklicken, an der Stelle anmerken, einmal anwenden, prüfen, weiter. Ehrgeiziges Ziel: von Kommentar bis geprüfter neuer Fassung einer Folie unter 60 Sekunden, und nach jeder KI-Änderung sagt die App belegt „nur Folie 8 geändert“. Geprüft wird das Grundgerüst durch einen automatischen Browser-Durchlauf mit eurem echten Aloha-Deck.
+**The goal behind the goal.** A team should get twenty small fixes done in minutes on the last night before the pitch, instead of in one long chat monologue, without breaking another slide along the way. As an activity: click through, note it on the spot, apply once, check, move on. Ambitious target: from comment to a checked new version of a slide in under 60 seconds, and after every AI change the app states, with evidence, "only slide 8 changed". The foundation is checked by an automated browser run against the real hackathon deck.
 
-## Einordnung: was es schon gibt
+## Landscape: what already exists
 
-Die Idee „Kommentare an die Folie heften und gebündelt anwenden“ gibt es bereits, aber nur für Leute mit lokalem Entwickler-Setup und in einem eigenen Deck-Format. Die Lücke ist ein Werkzeug, das ohne Installation im Browser auf einem beliebigen, schon vorhandenen HTML-Deck arbeitet.
+The idea of pinning comments to a slide and applying them in a batch already exists, but only for people with a local developer setup and in a deck format of its own. The gap is a tool that works in the browser, without installing anything into the deck, on any HTML deck that already exists.
 
-| Projekt | Was es ist | Was für deinen Ablauf fehlt |
+| Project | What it is | What is missing for this workflow |
 | --- | --- | --- |
-| [frontend-slides](https://open-design.ai/blog/frontend-slides/) | Skill für Coding-Agenten, der HTML-Decks erzeugt. MIT, laut Artikel rund 25.000 Sterne | Kein Editor und kein Viewer. Änderungen laufen weiter über den Chat, also genau der Monolog, den du loswerden willst |
-| [open-slide](https://notes.nicolasdeville.com/github/open-slide/) | Folien-Framework für Agenten mit Inspektor, an Elemente gehefteten Kommentaren und `/apply-comments`. MIT, 7.717 Sterne zum 2.0-Release | Braucht lokalen Dev-Server, Node und einen Coding-Agenten. Folien sind React-Komponenten, ein bestehendes HTML-Deck lässt sich nicht einfach öffnen |
-| [oh-my-ppt](https://dev.to/arcsin1/oh-my-ppt-local-first-ai-slide-deck-generator-editor-30ei) | Lokaler KI-Generator und Editor für HTML-Folien mit seitenweisem KI-Edit und Rollback | Läuft auf dem eigenen Rechner und erzeugt Decks im eigenen Format, kein Git-Bezug |
+| [frontend-slides](https://open-design.ai/blog/frontend-slides/) | Skill for coding agents that generates HTML decks. MIT, around 25,000 stars according to the article | No editor and no viewer. Changes still go through the chat, which is exactly the monologue DeckHack wants to get rid of |
+| [open-slide](https://notes.nicolasdeville.com/github/open-slide/) | Slide framework for agents with an inspector, comments pinned to elements and `/apply-comments`. MIT, 7,717 stars at the 2.0 release | Needs a local dev server, Node and a coding agent. Slides are React components, an existing HTML deck cannot simply be opened |
+| [oh-my-ppt](https://dev.to/arcsin1/oh-my-ppt-local-first-ai-slide-deck-generator-editor-30ei) | Local AI generator and editor for HTML slides with per-page AI edits and rollback | Runs on your own machine and produces decks in its own format, no connection to git |
 
-Empfehlung: selbst bauen, aber zwei Dinge übernehmen. Von open-slide die Idee, Kommentare später an einzelne Elemente statt nur an Folien zu heften. Und Decks aus frontend-slides als erstklassigen Eingang behandeln: Dessen Nutzer haben genau dein Problem und sind die naheliegende erste Community. Wer bereit ist, auf React-Folien und einen lokalen Agenten umzusteigen, ist mit open-slide heute schon bedient. Das ist die ehrliche Alternative zum Selbstbauen.
+Recommendation at the time: build it, but borrow two things. From open-slide, the idea of pinning comments to individual elements rather than only to slides (now built). And treat decks from frontend-slides as a first-class input: its users have exactly this problem and are the obvious first community. Anyone willing to switch to React slides and a local agent is already well served by open-slide today. That is the honest alternative to building.
 
-## Systemüberblick
+## System overview
 
-Die App besteht aus drei Bausteinen im Browser und spricht mit genau zwei Diensten, beide mit deinen eigenen Zugangsdaten.
+The app consists of three building blocks in the browser and talks to exactly two services, both with your own credentials.
 
 ```
-Quellen                    DeckHack im Browser                         Dienste (eigene Zugangsdaten)
+Sources                    DeckHack in the browser                       Services (your credentials)
 
-Vorlage      ─┐            ┌─ Vorschau: Sandbox-iframe + Bridge
-Upload / ZIP ─┼─ Dateien ─▶├─ Review-Runde: Kommentare ─▶ Edits ─▶ Prüfung ──▶ Claude API
-GitHub-Link  ─┘            └─ Versionen: IndexedDB ──────────────────────────▶ GitHub (laden, committen)
+Template     ─┐            ┌─ Preview: sandboxed iframe + bridge
+Upload / ZIP ─┼─ files ───▶├─ Review round: comments ─▶ edits ─▶ check ──▶ Claude API
+GitHub link  ─┘            └─ Versions: IndexedDB ─────────────────────────▶ GitHub (load, commit)
 ```
 
-Die Review-Runde ist die Mitte: Sie liest die Dateien der aktuellen Version, lässt die KI Edits liefern, rendert das Ergebnis in der Sandbox und legt erst nach der Prüfung eine neue Version an. Es gibt keinen Server, der Decks oder Keys sehen könnte.
+The review round is the centre: it reads the files of the current version, has the AI deliver edits, renders the result in the sandbox and only creates a new version after the check. There is no server that could see decks or keys.
 
-## Deck-Modell und Folienerkennung
+## Deck model and slide detection
 
-Ein Deck ist ein Ordner mit Dateien, mehr nicht. DeckHack schreibt nichts Eigenes hinein, außer auf Wunsch einer kleinen `deckhack.json`, die Einstiegsdatei und Erkennung festlegt.
+A deck is a folder of files, nothing more. DeckHack writes nothing of its own into it, except, on request, a small `deckhack.json` that pins the entry file and the detection.
 
-Intern kennt die App drei Dateiarten: Text (HTML, CSS, JS, SVG, JSON), der bearbeitet werden kann, lokale Binärdateien aus einem Upload, und entfernte Binärdateien, die im GitHub-Repo bleiben und per URL geladen werden, fest an den Commit gebunden. So muss ein 5-MB-Teamvideo nie durch den Browser-Speicher.
+Internally the app knows three kinds of files: text (HTML, CSS, JS, SVG, JSON), which can be edited; local binary files from an upload; and remote binary files that stay in the GitHub repository and are loaded by URL, pinned to the commit. That way a 5 MB team video never has to pass through browser storage.
 
-Die Folien findet ein Adapter, der im Vorschau-Fenster läuft:
+The slides are found by an adapter that runs inside the preview:
 
-| Adapter | Erkennt | Navigation | Beispiel |
+| Adapter | Detects | Navigation | Example |
 | --- | --- | --- | --- |
-| `sections` | Ein Element pro Folie: `section.slide`, `.slide`, reveal.js, `main > section` | Hinscrollen, sonst Pfeiltasten | Vorlagen, Decks aus frontend-slides |
-| `keys` | Decks, die Szenen per JavaScript bauen und einen Zähler wie „08 / 17“ zeigen | Simulierte Pfeiltasten, bis der Zähler stimmt | Euer Aloha-Pitch |
-| `single` | Nichts davon | Keine, Kommentare gelten fürs ganze Deck | Unbekannte Seiten |
+| `sections` | One element per slide: `section.slide`, `.slide`, reveal.js, `main > section` | Scroll into view, otherwise arrow keys | Templates, decks from frontend-slides |
+| `keys` | Decks that build scenes in JavaScript and show a counter like "08 / 17" | Simulated arrow keys until the counter matches | The Aloha Robotics hackathon pitch |
+| `single` | None of the above | None, comments apply to the whole deck | Unknown pages |
 
-Der `keys`-Adapter ist der Grund, warum euer echtes Deck funktioniert: Es hat keine Folien-Elemente im HTML, sondern ein `SCENES`-Array in `demo.js` mit Schritten pro Szene. Die Schritte bleiben erhalten, „Schritt vor“ und „Schritt zurück“ sind eigene Knöpfe.
+The `keys` adapter is why the real hackathon deck works: it has no slide elements in its HTML, but a `SCENES` array in `demo.js` with steps per scene. The steps are kept, "step forward" and "step back" are separate buttons.
 
-Neue Formate kommen als weiterer Adapter dazu. Geplant ist außerdem ein Einrichtungsschritt, bei dem die KI ein unbekanntes Deck liest und die `deckhack.json` vorschlägt.
+New formats are added as another adapter. Also planned: a setup step in which the AI reads an unknown deck and proposes the `deckhack.json`.
 
-## Vorschau und Sicherheit
+## Preview and security
 
-Deck-Code gilt immer als nicht vertrauenswürdig, egal ob er aus einem Link, einem Upload oder von der KI stammt. Er läuft ausschließlich in einem iframe mit `sandbox="allow-scripts"`.
+Deck code is always treated as untrusted, whether it comes from a link, an upload or the AI. It only ever runs in an iframe with `sandbox="allow-scripts"`.
 
-Das hat drei Folgen. Der iframe bekommt einen eigenen, leeren Origin und kann weder den Speicher der App noch den API-Key lesen. Er kann die App nicht umleiten und keine Fenster öffnen. Und die einzige Verbindung ist `postMessage` mit einem Token, das bei jedem Laden neu erzeugt wird.
+That has three consequences. The iframe gets its own empty origin and can read neither the app's storage nor the API key. It cannot redirect the app or open windows. And the only connection is `postMessage` with a token that is generated anew on every load.
 
-Damit ein Deck aus mehreren Dateien in so einem Fenster läuft, baut ein Bundler im Browser aus dem Ordner ein einziges HTML-Dokument: lokale Stylesheets und Skripte werden eingebettet, Bilder und Videos auf Data- oder Repo-URLs umgebogen. Als erstes Skript kommt eine kleine Bridge hinein, die nur in der Vorschau existiert und nie im Deck landet. Sie leistet fünf Dinge:
+So that a deck made of several files runs in such a frame, a bundler in the browser turns the folder into a single HTML document: local stylesheets and scripts are inlined, images and videos are pointed to data URLs or repository URLs. The first script inside is a small bridge that only exists in the preview and never ends up in the deck. It does five things:
 
-- Folien erkennen, anspringen und die aktuelle Position melden
-- Animationen einfrieren oder laufen lassen („mit und ohne Animation“)
-- Fehler aus dem Deck sammeln
-- Pfade auflösen, die das Deck erst zur Laufzeit zusammensetzt, etwa `assets/${name}.webp`
-- Browser-Funktionen ersetzen, die in der Sandbox verboten sind (`localStorage`, `history.replaceState`)
+- Detect slides, jump to them and report the current position
+- Freeze animations or let them run ("with and without animation")
+- Collect errors from the deck
+- Resolve paths the deck only assembles at runtime, such as `assets/${name}.webp`
+- Replace browser features that are forbidden in the sandbox (`localStorage`, `history.replaceState`)
 
-Den letzten Punkt hat erst der Test mit dem Aloha-Deck aufgedeckt: Es schreibt bei jedem Folienwechsel `?s=8` in die Adresse und stürzte in der Sandbox zunächst ab.
+The last point was only uncovered by testing with the real hackathon deck: it writes `?s=8` into the address on every slide change and crashed in the sandbox at first.
 
-Bekannte Grenzen: ES-Module mit lokalen Importen werden noch nicht gebündelt. Und auf GitHub Pages teilen sich alle Projekte eines Nutzers einen Origin. Wer „Key merken“ einschaltet, sollte die App deshalb unter einer eigenen Domain betreiben. Standard ist: Key nur für die Dauer des Tabs. Dauerhaftes Merken ist ein Opt-in mit Warnhinweis, „Remove stored keys“ löscht wieder. Die App empfiehlt einen eigenen Key für DeckHack in einem Workspace mit Ausgabelimit. Als zweite Schutzschicht hinter der Sandbox erlaubt eine Content-Security-Policy der Seite und der Vorschau Verbindungen nur zu `api.anthropic.com`, `api.github.com` und `cdn.jsdelivr.net`.
+Known limits: ES modules with local imports are not bundled yet. The default is: key only for the lifetime of the tab. Remembering it permanently is opt-in with a warning, "Remove stored keys" deletes it again. The app recommends a separate key for DeckHack in a workspace with a spend limit. Anyone who hosts DeckHack themselves and turns on "remember keys" should give it its own domain, so no other site shares its storage. As a second layer behind the sandbox, a Content Security Policy only lets the page and the preview connect to `api.anthropic.com`, `api.github.com` and `cdn.jsdelivr.net`.
 
-## KI-Überarbeitung
+## AI rework
 
-Eine Review-Runde schickt alle offenen Kommentare in einem Auftrag an das Modell und bekommt gezielte Datei-Edits zurück, keine neu geschriebenen Dateien.
+A review round sends all open comments to the model in one request and gets targeted file edits back, not rewritten files.
 
-1. **Sammeln.** Kommentare hängen an einer Folie oder am ganzen Deck. „Nur diese Folie“ und „ganzes Deck neu“ sind derselbe Ablauf mit anderem Umfang.
-2. **Auftrag bauen.** Fester Systemprompt, dann der Deck-Inhalt mit Folienliste als cachebarer Block, dann die Kommentare. Bei mehreren Runden auf derselben Fassung wird der Deck-Block aus dem Cache gelesen.
-3. **Edits als Werkzeugaufrufe.** Drei Werkzeuge: `replace_in_file` (alter Text muss exakt und genau einmal vorkommen), `write_file`, `delete_file`. Jeder Aufruf wird geprüft: nur Pfade im Deck, nur Textdateien. Schlägt ein Edit fehl, bekommt das Modell die Fehlermeldung und korrigiert sich.
-4. **Prüfen.** Die neue Fassung wird unsichtbar gerendert, jede Folie mit eingefrorenen Animationen angesprungen und ein Fingerabdruck aus Markup, Text, Farben, Schrift und Positionen gebildet. Der Vergleich mit der Vorfassung ergibt die Liste der wirklich geänderten Folien.
-5. **Reparieren.** Erzeugt die Änderung neue Fehler beim Laden, bekommt das Modell genau einen Reparaturversuch mit den Fehlertexten.
-6. **Ergebnis.** Neue Version, dazu die Meldung „Geändert: Folie 8. Alle anderen Folien unverändert“ oder die Warnung, dass eine unkommentierte Folie mitgeändert wurde.
+1. **Collect.** Comments are attached to a slide or to the whole deck. "Only this slide" and "redo the whole deck" are the same flow with a different scope.
+2. **Build the request.** A fixed system prompt, then the deck content with the slide list as a cacheable block, then the comments. Across several rounds on the same version, the deck block is read from the cache.
+3. **Edits as tool calls.** Three tools: `replace_in_file` (the old text must occur exactly and exactly once), `write_file`, `delete_file`. Every call is checked: only paths inside the deck, only text files. If an edit fails, the model gets the error message and corrects itself.
+4. **Check.** The new version is rendered invisibly, every slide is visited with animations frozen and a fingerprint is built from markup, text, colours, fonts and positions. Comparing it with the previous version yields the list of slides that really changed.
+5. **Repair.** If the change causes new errors on load, the model gets exactly one repair attempt with the error texts.
+6. **Result.** A new version, plus the message "Changed: slide 8. Every other slide is unchanged" or the warning that a slide without a comment was changed too.
 
-Schritt 4 ist der Kern des Werkzeugs. Bei Decks wie eurem teilen sich alle Folien ein Stylesheet und ein Skript, und ein gut gemeinter Edit an Folie 8 verschiebt leicht Folie 3. Im Chat merkt man das erst auf der Bühne.
+Step 4 is the heart of the tool. In decks like the hackathon one, all slides share one stylesheet and one script, and a well-meant edit to slide 8 easily shifts slide 3. In a chat you only notice that on stage.
 
-Der Aufruf geht direkt aus dem Browser an die Claude-API, mit dem Key des Nutzers. Standardmodell ist Claude Opus 5.5 mit mittlerem Aufwand, wählbar sind Sonnet 5.5 für kleine Textkorrekturen und Fable 5.2 für den Umbau ganzer Decks. Lehnt ein Sicherheitsfilter eine Anfrage ab, wiederholt die API sie automatisch auf einem Ausweichmodell. Diese Fallback-Option habe ich eingeschaltet. Andere Anbieter passen hinter dieselbe kleine Schnittstelle.
+The call goes straight from the browser to the Claude API, with the user's key. The default model is Claude Opus 5.5 at medium effort; Sonnet 5.5 can be picked for small text fixes and Fable 5.2 for reworking whole decks. If a safety filter declines a request, the API automatically retries it on a fallback model; that fallback option is switched on. Other providers fit behind the same small interface.
 
-Daneben gibt es einen Demo-Modus ohne KI und ohne Netz, der nur `replace "alt" with "neu"` versteht. Mit ihm lässt sich der ganze Ablauf ausprobieren und automatisch testen.
+There is also a demo mode without AI and without network that only understands `replace "old" with "new"`. It lets you try the whole flow and test it automatically.
 
-## Versionierung und Speichern
+## Versioning and saving
 
-Versionen entstehen in zwei Schichten: lokal bei jedem Schritt, im Repo beim Speichern.
+Versions exist in two layers: locally on every step, in the repository on save.
 
-**Lokal.** Jede KI-Runde und jede Wiederherstellung erzeugt eine Version in der IndexedDB des Browsers. Dateiinhalte liegen einmal pro Inhalts-Hash, eine neue Version kostet also nur die geänderten Dateien. Zu jeder Version gehören das Prüfergebnis, die geänderten Folien und die geänderten Dateien.
+**Locally.** Every AI round and every restore creates a version in the browser's IndexedDB. File contents are stored once per content hash, so a new version only costs the files that changed. Each version carries the check result, the changed slides and the changed files.
 
-**Zurückspringen löscht nie.** Wer v2 wiederherstellt, bekommt v5 mit dem Inhalt von v2. Kommentare, die in den übersprungenen Versionen angewendet wurden, werden wieder offen. „Vorher zeigen“ und „Nachher zeigen“ schalten die Bühne zwischen zwei Versionen um und behalten die Folie bei.
+**Going back never deletes.** Restoring v2 gives you v5 with the content of v2. Comments that were applied in the skipped versions become open again. "Show before" and "Show after" switch the stage between two versions and keep the current slide.
 
-**Im Repo.** „Speichern“ schreibt die geänderten Textdateien als einen Commit über die Git-Data-API von GitHub. Ziel ist ein eigener Branch, Vorschlag `deckhack/<deckname>`, der bei Bedarf aus dem Quell-Branch entsteht. Auf `main` landet nichts ohne Pull Request. Decks ohne Repo werden als ZIP heruntergeladen.
+**In the repository.** "Save" writes the changed text files as one commit through GitHub's Git Data API. The target is a branch of its own, suggested as `deckhack/<deckname>`, created from the source branch when needed. Nothing lands on `main` without a pull request. Decks without a repository are downloaded as a zip.
 
-Bewusst nicht gewählt: ein vollständiges Git im Browser. Es brächte einen CORS-Proxy fürs Klonen und damit doch wieder einen Server.
+Deliberately not chosen: full git in the browser. It would need a CORS proxy for cloning, and with that a server after all.
 
-## Vorlagen und Community
+## Templates and community
 
-Beitragen soll so leicht sein wie ein Ordner in einem Pull Request. Es gibt drei klar abgegrenzte Stellen dafür:
+Contributing should be as easy as a folder in a pull request. There are three clearly separated places for it:
 
-| Beitrag | Was man liefert | Aufwand |
+| Contribution | What you deliver | Effort |
 | --- | --- | --- |
-| Vorlage | Ordner unter `templates/` mit `index.html` und `deckhack.json` (Name, Beschreibung, Autor). Nur Textdateien, keine externen Anfragen, damit sie auch bei schlechtem WLAN am Veranstaltungsort läuft | Ein Abend |
-| Adapter | Erkennung für ein weiteres Deck-Format in der Bridge, plus ein Testdeck | Ein paar Stunden |
-| KI-Anbieter | Implementierung der Schnittstelle `Provider` | Ein paar Stunden |
+| Template | A folder under `templates/` with `index.html` and `deckhack.json` (name, description, author). Text files only, no external requests, so it also works on bad venue Wi-Fi | One evening |
+| Adapter | Detection for another deck format in the bridge, plus a test deck | A few hours |
+| AI provider | An implementation of the `Provider` interface | A few hours |
 
-Die Vorlage „Three-minute pitch“ gibt die Jury-Dramaturgie vor: Aufhänger, Problem, Lösung, Demo, Funktionsweise, Team, Bitte. Als nächster Schritt füllt die KI sie aus einem kurzen Formular (Team, Challenge, Problem, Lösung, Redezeit).
+The "Three-minute pitch" template follows the dramaturgy juries expect: hook, problem, solution, demo, how it works, team, ask. The start wizard fills it from a short form (talk length, jury criteria, storyline, content).
 
-Drei Hebel für die Community, in dieser Reihenfolge:
+Three levers for the community, in this order:
 
-1. **Euer eigener Pitch als Vorzeigefall.** Platz 4 in Erlangen mit einem so gebauten Deck ist die glaubwürdigste Werbung. Das Aloha-Deck sollte als Beispiel ladbar sein.
-2. **Ein Klick zum Ausprobieren.** Die gehostete App soll ein Deck direkt aus einem Link öffnen, etwa `?deck=github.com/du/repo`. Ein Badge im README fremder Hackathon-Repos führt dann in den Editor.
-3. **Vorlagen-Galerie mit Namen.** Jede Vorlage nennt ihr Team und den Hackathon. Das gibt Teilnehmern einen Grund, ihr Deck nach dem Event beizusteuern.
+1. **The original pitch as the showcase.** Fourth place at a hackathon in Erlangen with a deck built this way is the most credible advertising. The Aloha Robotics deck should be loadable as an example.
+2. **One click to try it.** The app opens a deck directly from a link such as `?deck=github.com/you/repo`. A badge in other hackathon repositories' READMEs then leads straight into the editor of a locally running DeckHack.
+3. **A template gallery with names.** Every template names its team and its hackathon. That gives participants a reason to contribute their deck after the event.
 
-Lizenz ist MIT. Im Repo liegen README, CONTRIBUTING, CI und ein Workflow für GitHub Pages schon bereit.
+The licence is MIT: anyone may use, change and adapt DeckHack for any purpose, hackathon or not. README, CONTRIBUTING, CI and a GitHub Pages workflow for the landing page are in the repository.
 
-## Design- und UI-Konzept
+## Design and UI concept
 
-Das Leitbild ist ein Regieraum: ruhige Technik rund um eine beleuchtete Bühne. Die Oberfläche tritt zurück, das Deck ist das Einzige mit Charakter.
+The guiding image is a control room: calm technology around a lit stage. The interface steps back, the deck is the only thing with character.
 
-**Aufbau.** Drei Spalten unter einer schmalen Kopfzeile.
+**Layout.** Three columns below a slim header.
 
-| Bereich | Inhalt | Warum so |
+| Area | Content | Why |
 | --- | --- | --- |
-| Links: Folienleiste | Nummer, Titel, gelbe Marke mit Anzahl offener Kommentare, blauer Punkt für „in dieser Version geändert“ | Man sieht auf einen Blick, wo noch Arbeit liegt und was die letzte Runde angefasst hat |
-| Mitte: Bühne | Deck in fester Größe von 1280 × 720, auf den Platz skaliert. Darunter Folie vor und zurück, Schritt vor und zurück, Animationen an oder aus, Replay, Präsentieren | Feste Größe heißt: Die Folie sieht im Editor aus wie am Beamer |
-| Rechts: Review und Versionen | Kommentare zur aktuellen Folie, Eingabefeld, „Runde anwenden“, Protokoll, Ergebnis. Zweiter Reiter: Versionsliste | Der Blick bleibt auf der Folie, die Hand beim Kommentar |
-| Kopfzeile | Deckname, Quelle, Versionsmarke, Speichern, Einstellungen | Speichern ist selten, also klein |
+| Left: slide rail | Number, title, yellow marker with the number of open comments, blue dot for "changed in this version" | You see at a glance where work is left and what the last round touched |
+| Centre: stage | Deck at a fixed size of 1280 × 720, scaled to fit. Below it slide forward and back, step forward and back, animations on or off, replay, present | Fixed size means the slide looks in the editor the way it will on the projector |
+| Right: review and versions | Comments on the current slide, input field, "Apply round", log, result. Second tab: version list | Your eyes stay on the slide, your hands on the comment |
+| Header | Deck name, source, version badge, save, settings | Saving is rare, so it is small |
 
-**Kernablauf.** Folie anklicken, Kommentar tippen, Enter. Nächste Folie. Am Ende einmal „Runde anwenden“. Das Ergebnis erscheint als Karte mit der Prüfmeldung, darunter „Vorher zeigen“ und „Rückgängig“. Kein Dialog, kein Seitenwechsel.
+**Core flow.** Click a slide, type a comment, Enter. Next slide. At the end, "Apply round" once. The result appears as a card with the check message, below it "Show before" and "Undo". No dialog, no page change.
 
-**Farbe mit Bedeutung.** Es gibt genau zwei Rollen. Kobaltblau steht für alles, was man tun kann. Markergelb steht für Notizen, die noch warten, wie ein Klebezettel auf einem Ausdruck. Grün, Orange und Rot sind für Prüfergebnisse reserviert. Die Flächen sind ein kühles Schiefergrau statt Schwarz oder Weiß, damit dunkle wie helle Decks davor gut stehen. Helles und dunkles Thema folgen dem System.
+**Colour with meaning.** There are exactly two roles. Cobalt blue stands for everything you can do. Marker yellow stands for notes that are still waiting, like a sticky note on a printout. Green, orange and red are reserved for check results. Surfaces are a cool slate grey instead of black or white, so both dark and light decks sit well in front of them. Light and dark theme follow the system. The logo is the palm from the Aloha Robotics hackathon team.
 
-**Schrift.** Systemschrift für die Oberfläche, Festbreitenschrift für alles, was gezählt wird: Foliennummern, Versionen, Protokoll. Keine Webfonts, die App lädt nichts von Dritten.
+**Type.** System font for the interface, monospace for everything that is counted: slide numbers, versions, the log. No web fonts, the app loads nothing from third parties.
 
-**Sprache.** Englisch, weil die Zielgruppe international ist. Knöpfe sagen, was passiert („Apply round“, „Restore this version“), Fehler sagen, was zu tun ist.
+**Language.** English, because the audience is international. Buttons say what happens ("Apply round", "Restore this version"), errors say what to do.
 
-**Schmale Bildschirme.** Unter 900 px steht die Bühne oben, die Folien werden zur waagerechten Leiste, Review folgt darunter. Kommentieren am Handy geht, bearbeitet wird am Laptop.
+**Narrow screens.** Below 900 px the stage sits on top, the slides become a horizontal rail, the review follows below. Commenting on a phone works, editing is for the laptop.
 
-**Noch nicht gebaut, aber vorgesehen:** Miniaturbilder in der Folienleiste, Kommentare per Klick auf ein Element der Folie, ein Schieber für den Vorher-Nachher-Vergleich und ein Presenter-Modus mit Notizen und Timer.
+**Not built yet, but planned:** thumbnails in the slide rail, a slider for the before/after comparison and a presenter mode with notes and a timer.
 
-## Tech-Stack und Repo-Struktur
+## Tech stack and repository layout
 
-TypeScript, React 19 und Vite, ausgeliefert als statische Dateien. Das ist der Stack, den die meisten Beitragenden und jede Coding-KI am besten kennen.
+TypeScript, React 19 and Vite, shipped as static files. That is the stack most contributors and every coding AI know best.
 
-| Baustein | Wahl | Anmerkung |
+| Building block | Choice | Note |
 | --- | --- | --- |
-| Oberfläche | React 19, eigenes CSS mit Tokens | Keine UI-Bibliothek, rund 200 Zeilen CSS |
-| KI | `@anthropic-ai/sdk` im Browser | Wird erst beim ersten KI-Aufruf nachgeladen |
-| ZIP | `fflate` | Einzige weitere Laufzeit-Abhängigkeit |
-| Speicher | IndexedDB direkt | Rund 150 Zeilen |
-| GitHub | REST-API per `fetch` | Kein SDK |
-| Tests | Vitest für die Kernlogik, Playwright für den Durchlauf im Browser | Beide laufen in der CI |
+| Interface | React 19, own CSS with tokens | No UI library |
+| AI | `@anthropic-ai/sdk` in the browser | Only loaded on the first AI call |
+| ZIP | `fflate` | The only other runtime dependency |
+| Storage | IndexedDB directly | Around 150 lines |
+| GitHub | REST API via `fetch` | No SDK |
+| Tests | Vitest for the core logic, Playwright for the browser run | Both run in CI |
 
-| Ordner | Aufgabe |
+| Folder | Purpose |
 | --- | --- |
-| `src/core/` | Deck-Modell, Edits, Bundler, Bridge, Vorschau, Versionen |
-| `src/sources/` | Upload, GitHub laden und committen, Vorlagen |
-| `src/ai/` | Anbieter-Schnittstelle, Claude, Demo-Modus, Review-Runde mit Prüfung |
-| `src/ui/` | Start, Editor, Dialoge, Styles |
-| `templates/` | Vorlagen als einfache Ordner |
-| `tests/` | 13 Unit-Tests, ein Browser-Durchlauf mit 15 Prüfungen |
+| `src/core/` | Deck model, edits, bundler, bridge, preview, versions |
+| `src/sources/` | Upload, loading from and committing to GitHub, templates, start wizard, example deck |
+| `src/ai/` | Provider interface, Claude, demo mode, review round with check |
+| `src/ui/` | Start, editor, dialogs, styles |
+| `templates/` | Templates as plain folders |
+| `tests/` | Unit tests, a browser run, template evals |
 
-Die Kernlogik in `src/core/` kennt kein React. Sie lässt sich später auch in einer GitHub Action verwenden, die bei jedem Commit alle Folien fotografiert, so wie euer `shots.mjs`.
+The core logic in `src/core/` knows nothing about React. It can later also be used in a GitHub Action that photographs every slide on each commit.
 
-## Stand und Fahrplan
+## Status and roadmap
 
-Das Grundgerüst läuft: Der gesamte Review-Ablauf funktioniert im Demo-Modus und ist automatisch geprüft, auch mit eurem echten Aloha-Deck. Zwei Wege sind gebaut, aber noch nie gegen den echten Dienst gelaufen: der Claude-Aufruf und der GitHub-Commit. Dafür fehlten hier Key und Token.
+The foundation works: the whole review flow runs in demo mode and is checked automatically, including with the real hackathon deck. Two paths are built but have never run against the real service: the Claude call and the GitHub commit. The key and token for that were missing.
 
-| Geprüft am 17.11.2026 | Ergebnis |
+| Checked on 17 Nov 2026 (first state) | Result |
 | --- | --- |
-| Typecheck, Lint, 13 Unit-Tests | Grün |
-| Browser-Durchlauf mit Vorlage: laden, 7 Folien erkennen, kommentieren, anwenden, „nur Folie 1 geändert“, v1 wiederherstellen | 10 von 10 |
-| Sandbox: Deck-Code kann die App nicht lesen | Bestätigt |
-| Aloha-Deck als ZIP: 17 Szenen über den Zähler erkannt, Sprung auf Folie 8, keine Fehler, Bilder geladen | Bestätigt |
-| Aloha-Deck: Textänderung auf Folie 8 wird als „nur Folie 8“ gemeldet | Bestätigt |
-| Claude-API aus dem Browser, GitHub laden und committen | Nicht getestet |
+| Typecheck, lint, 13 unit tests | Green |
+| Browser run with a template: load, detect 7 slides, comment, apply, "only slide 1 changed", restore v1 | 10 of 10 |
+| Sandbox: deck code cannot read the app | Confirmed |
+| Hackathon deck as zip: 17 scenes detected via the counter, jump to slide 8, no errors, images loaded | Confirmed |
+| Hackathon deck: a text change on slide 8 is reported as "only slide 8" | Confirmed |
+| Claude API from the browser, loading from and committing to GitHub | Not tested |
 
-**Nachtrag vom Abend des 17.11.2026.** Seit dem ersten Stand dazugekommen und geprüft (51 Unit-Tests, 32 Browser-Prüfungen, 35 mit dem Aloha-Deck):
+**Update, evening of 17 Nov 2026 and 18 Nov 2026.** Added and checked since the first state (71 unit tests, 32 browser checks, 35 with the hackathon deck):
 
-| Baustein | Stand |
+| Building block | State |
 | --- | --- |
-| Beispiel-Deck mit Dummy-Daten, Start-Wizard | Fertig, getestet |
-| Key-Absicherung: nur Tab-Sitzung, Opt-in mit Warnung, Content-Security-Policy | Fertig, getestet |
-| Kommentar per Klick auf ein Element, Token-Schätzung vor dem Senden, Deck per Link (`?example`, `?template=`, `?deck=`) | Fertig, getestet (`?deck=` nur bis zum Aufruf, GitHub selbst ungetestet) |
-| Evals: 12 Fälle, deterministische Bewertung, Workflow | Bewertung getestet, kein Live-Lauf |
-| Landingpage, Screenshots und GIF per Skript, Pages-Build | Gebaut, Deployment ungetestet |
-| Lokaler Start mit einem Befehl (`npx github:clschulzer/DeckHack`, `npm start`, `docker compose up`), Pages nur als Landingpage ohne App | Gebaut und getestet, Container-Check in der CI |
-| Vorlagenvertrag `templates/README.md` mit automatischer Prüfung | Fertig |
-| Erste echte Runde mit Claude, Commit nach GitHub (M1) | Offen, braucht Key und Token |
-| Miniaturbilder, Vorher-Nachher-Schieber (M2) | Offen. „Show before/after“ schaltet schon um |
-| Aloha-Deck als Beispiel, Adapter-Tests mit echten reveal.js- und Marp-Decks, Screenshot-Action, Ankündigung (M3) | Offen |
-| Weitere Vorlagen | Eigener Pull Request |
+| Example deck with dummy data, start wizard | Done, tested |
+| Key hardening: tab session only, opt-in with warning, Content Security Policy | Done, tested |
+| Comment by clicking an element, token estimate before sending, deck by link (`?example`, `?template=`, `?deck=`) | Done, tested (`?deck=` only up to the request, GitHub itself untested) |
+| Evals: 12 cases, deterministic scoring, workflow | Scoring tested, no live run |
+| Landing page, screenshots and GIF by script, Pages build | Built, live on GitHub Pages |
+| Local start with one command (`npx github:clschulzer/DeckHack`, `npm start`, `docker compose up`), Pages only as landing page without the app | Built and tested, container check in CI |
+| Template contract `templates/README.md` with automatic checks, five more templates | Done |
+| First real round with Claude, commit to GitHub (M1) | Open, needs key and token |
+| Thumbnails, before/after slider (M2) | Open. "Show before/after" already switches |
+| Hackathon deck as example, adapter tests with real reveal.js and Marp decks, screenshot action, announcement (M3) | Open |
 
-Was genau getestet ist und was einen echten Key braucht, steht in `docs/TESTING.md`.
+Exactly what is tested and what needs a real key is in `docs/TESTING.md`.
 
-| Meilenstein | Inhalt | Fertig, wenn |
+| Milestone | Content | Done when |
 | --- | --- | --- |
-| M1: Erste echte Runde | Eigenes Repo, Landingpage auf GitHub Pages, Claude und GitHub-Commit mit echten Zugangsdaten durchspielen, Fehler daraus beheben | Auf dem Aloha-Deck wird aus einem Kommentar in unter 60 Sekunden eine geprüfte neue Fassung, und der Commit liegt auf einem Branch |
-| M2: Fühlt sich an wie ein Folien-Werkzeug | Miniaturbilder, Kommentar per Klick auf ein Element, Vorher-Nachher-Schieber, Vorlage per KI aus einem Kurzbriefing füllen, Deck per Link öffnen | Eine fremde Person schafft fünf Korrekturen ohne Erklärung |
-| M3: Community-Start | Aloha-Deck als Beispiel, fünf Vorlagen, Adapter für reveal.js und Marp mit Testdecks, Screenshot-Action, Ankündigung | Der erste fremde Pull Request ist gemergt |
+| M1: First real round | Own repository, landing page on GitHub Pages, run Claude and the GitHub commit with real credentials, fix what that turns up | On the hackathon deck, a comment becomes a checked new version in under 60 seconds, and the commit is on a branch |
+| M2: Feels like a slide tool | Thumbnails, comment by clicking an element, before/after slider, fill a template with AI from a short brief, open a deck by link | A stranger manages five fixes without an explanation |
+| M3: Community launch | Hackathon deck as example, five templates, adapters for reveal.js and Marp with test decks, screenshot action, announcement | The first pull request from someone outside is merged |
 
-## Risiken und offene Entscheidungen
+## Risks and open decisions
 
-Das größte Risiko ist nicht die Technik, sondern dass der erste echte KI-Lauf Überraschungen bringt, die der Demo-Modus nicht zeigen kann.
+The biggest risk is not the technology, but that the first real AI run brings surprises the demo mode cannot show.
 
-| Risiko | Einschätzung | Gegenmittel |
+| Risk | Assessment | Countermeasure |
 | --- | --- | --- |
-| Claude-Aufruf aus dem Browser scheitert an Details | Mittel. Der Weg ist für „eigener Key im Browser“ vorgesehen ([Quelle](https://simonwillison.net/2024/Aug/23/anthropic-dangerous-direct-browser-access)), aber hier ungetestet | Erster Punkt in M1 |
-| Kosten pro Runde bei großen Decks | Niedrig. Das Aloha-Deck hat rund 100 KB Text, geschätzt 30.000 Tokens. Das sind bei Opus 5.5 etwa 12 Cent Eingabe pro Runde, mit Cache deutlich weniger | Vor dem Anwenden die geschätzten Tokens anzeigen |
-| Fingerabdruck meldet Änderungen, die keine sind | Mittel bei Decks mit Zufall oder Uhrzeit im Bild. Beim Aloha-Deck stabil | Animationen sind beim Prüfen eingefroren, pro Deck abschaltbar machen |
-| Private Repos | Bilder und Videos werden derzeit nur aus öffentlichen Repos geladen | Binärdateien bei privaten Repos über die API holen |
-| Key im Browser-Speicher | Niedrig bei Standardeinstellung (nur für den Tab) | Eigene Domain für die gehostete App |
-| Decks mit ES-Modulen | Lokale Importe werden noch nicht gebündelt | Import-Map im Bundler ergänzen |
+| The Claude call from the browser fails on details | Medium. The path is meant for "your own key in the browser" ([source](https://simonwillison.net/2024/Aug/23/anthropic-dangerous-direct-browser-access)), but untested here | First item in M1 |
+| Cost per round for large decks | Low. The hackathon deck has around 100 KB of text, an estimated 30,000 tokens. With Opus 5.5 that is roughly 12 cents of input per round, much less with the cache | Show the estimated tokens before applying |
+| The fingerprint reports changes that are not real | Medium for decks with randomness or the time of day on screen. Stable for the hackathon deck | Animations are frozen during the check; make it switchable per deck |
+| Private repositories | Images and videos are currently only loaded from public repositories | Fetch binary files from private repositories through the API |
+| Key in browser storage | Low with the default setting (tab only) | Own domain for anyone hosting it themselves |
+| Decks with ES modules | Local imports are not bundled yet | Add an import map to the bundler |
 
-Entschieden: Name „DeckHack“, Repo `clschulzer/DeckHack`, Lizenz MIT. Ob der Name als Marke oder Domain frei ist, ist nicht geprüft.
-
-Noch offen:
-
-- [ ] **Sprache der Oberfläche.** Englisch angenommen, wegen der internationalen Zielgruppe.
+Decided: name "DeckHack", repository `clschulzer/DeckHack`, licence MIT, interface in English. Whether the name is free as a trademark or domain has not been checked.

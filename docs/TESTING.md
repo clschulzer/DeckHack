@@ -13,7 +13,7 @@ DeckHack promises one thing a presenter has to be able to rely on the night befo
 | npx start | `npm run npx:check` | every pull request | The repository packs like a git dependency, installs elsewhere, and the `deckhack` command serves the app and nothing outside `dist/`. |
 | Evals | `ANTHROPIC_API_KEY=… npm run eval` | manual workflow “Evals” | Twelve rework cases against the real model: scope, content, invention. See [evals/README.md](../evals/README.md). |
 
-Numbers on this branch: 51 unit tests, 32 browser checks (35 with an extra deck), plus a container check (`npm run docker:check`), 12 eval cases.
+Numbers on this branch: 71 unit tests, 32 browser checks (35 with an extra deck), plus a container check (`npm run docker:check`), 12 eval cases.
 
 ## The three risks and the test that owns each
 
