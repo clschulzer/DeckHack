@@ -11,6 +11,12 @@ DeckHack is a static web app. It has no server: decks, versions and keys stay in
 DeckHack is meant to run on your own computer. One command, no account, nothing hosted for you:
 
 ```bash
+npx github:clschulzer/DeckHack    # Node 22, no clone needed: fetches, builds, opens http://localhost:4173
+```
+
+Or from a clone:
+
+```bash
 git clone https://github.com/clschulzer/DeckHack && cd DeckHack
 
 docker compose up      # no Node needed, then open http://localhost:8080
@@ -18,9 +24,11 @@ docker compose up      # no Node needed, then open http://localhost:8080
 npm ci && npm start    # builds, serves and opens http://localhost:4173
 ```
 
+The `npx` line needs git and takes a minute the first time, because it installs the build tools and builds the app on your computer. `--port 5000` picks another port, `--no-open` leaves the browser alone. The server only listens on your own computer.
+
 Another port for Docker: `DECKHACK_PORT=9000 docker compose up`. Your Claude key is entered in the app under Settings and goes from your browser straight to Anthropic.
 
-The [project site](https://clschulzer.github.io/DeckHack/) is only a landing page. Its demo runs on dummy data and takes no keys.
+The [project site](https://clschulzer.github.io/DeckHack/) is only a landing page, the app is not hosted there. To try DeckHack without a key, start it and click “Try the example deck”.
 
 > Status: the review loop, the example deck, the start wizard and the key handling work end to end in demo mode and are covered by tests. Everything that needs a real Anthropic key or GitHub token (a round with Claude, the live evals, committing to GitHub) is built but has not been run against the live services yet. [docs/TESTING.md](docs/TESTING.md) lists exactly what is and is not tested.
 
@@ -46,8 +54,9 @@ The [project site](https://clschulzer.github.io/DeckHack/) is only a landing pag
 npm ci
 npm run dev        # local dev server
 npm run build      # the app as a static site in dist/
-npm run build:pages   # landing page (site/) plus a demo-only build of the app under app/ (no key entry), as GitHub Pages serves it
+npm run build:pages   # the landing page (site/) in dist-pages/, as GitHub Pages serves it. The app is not part of it
 npm run docker:check  # build the container, start it and check that it serves the app
+npm run npx:check     # pack the repository as npx does, install it elsewhere and check the deckhack command
 ```
 
 Links into the app: `?example` opens the example deck, `?template=<id>` starts the wizard, `?deck=github.com/you/repo` loads a deck from GitHub.

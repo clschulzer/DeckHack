@@ -116,8 +116,8 @@
     <p class="lead">Your team built the pitch as HTML with an AI. Now it needs twenty small fixes before the jury sees it. DeckHack lets you click through the deck, leave a note on each slide, apply all notes in one round and see exactly which slides changed.</p>
     <div class="cta">
       <a class="btn primary" href="#run">Run it locally</a>
-      <a class="btn" href="app/?example">Try the demo</a>
-      <small>DeckHack runs on your own computer with one command. The demo here uses dummy data and takes no key.</small>
+      <a class="btn" href="https://github.com/clschulzer/DeckHack">View on GitHub</a>
+      <small>DeckHack runs on your own computer with one command. It comes with an example deck on dummy data, no key needed.</small>
     </div>
     <figure class="stage">
       <img src="media/demo.gif" width="1280" height="800" alt="DeckHack demo: four comments on a seven-slide deck are applied in one round, the app reports that slides 1, 3, 5 and 7 changed and every other slide is unchanged, then the earlier version is shown again.">
@@ -185,11 +185,14 @@
     <p class="kicker">Run it</p>
     <h2>One command, on your own laptop.</h2>
     <p>Nobody hosts DeckHack for you, and nobody has to. It is a static app that you start locally, so your key and your deck never pass through someone else's server.</p>
-    <pre class="run"><code>git clone https://github.com/clschulzer/DeckHack
+    <pre class="run"><code>npx github:clschulzer/DeckHack   # with Node 22, opens http://localhost:4173
+
+# or with Docker
+git clone https://github.com/clschulzer/DeckHack
 cd DeckHack
 docker compose up        # then open http://localhost:8080
 # without Docker: npm ci &amp;&amp; npm start</code></pre>
-    <p>The page you are on is only the project site. Its <a href="app/?example">demo</a> lets you click through the review loop with dummy data, without any key entry.</p>
+    <p>The page you are on is only the project site, the app is not hosted here. Once it runs, “Try the example deck” lets you click through the review loop with dummy data, without a key.</p>
   </div>
 </section>
 
@@ -215,8 +218,8 @@ docker compose up        # then open http://localhost:8080
     <h2>The check that tells you what changed is itself checked.</h2>
     <p>Three layers, all in the repository and all run on every pull request except the live evals, which need an API key.</p>
     <div class="cols">
-      <div class="card"><span class="n">52</span><h3>Unit tests</h3><p>Edits, versions, key storage, the wizard, every template against the template rules.</p></div>
-      <div class="card"><span class="n">34</span><h3>Browser checks</h3><p>The whole loop in a real browser: comment, apply, changed slides, restore, sandbox, key handling, wizard.</p></div>
+      <div class="card"><span class="n">51</span><h3>Unit tests</h3><p>Edits, versions, key storage, the wizard, every template against the template rules.</p></div>
+      <div class="card"><span class="n">32</span><h3>Browser checks</h3><p>The whole loop in a real browser: comment, apply, changed slides, restore, sandbox, key handling, wizard.</p></div>
       <div class="card"><span class="n">12</span><h3>Eval cases</h3><p>Did only the commented slide change? Is the change there? Was anything invented? Deterministic scoring, no model grading a model.</p></div>
     </div>
     <p style="margin-top:18px">Honest status: the eval cases and their scoring are tested, but no live run against Claude has been recorded yet. <a href="https://github.com/clschulzer/DeckHack/blob/main/docs/TESTING.md">Test strategy</a> · <a href="https://github.com/clschulzer/DeckHack/tree/main/evals">Evals</a></p>

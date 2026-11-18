@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { estimateTokens } from '../ai/prompt';
 import { PROVIDERS, runRework } from '../ai/rework';
 import { Preview, probeDeck, type Picked, type PreviewState } from '../core/preview';
-import { HOSTED_DEMO, loadSettings, saveSettings, type Settings } from '../core/settings';
+import { loadSettings, saveSettings, type Settings } from '../core/settings';
 import {
   addSnapshot, getProject, listComments, listSnapshots, readFiles, removeComment, saveComment, updateSnapshot,
 } from '../core/store';
@@ -384,7 +384,7 @@ export function Editor({ projectId, onExit }: { projectId: string; onExit: () =>
               {!provider.needsKey && (
                 <p className="hint">
                   Demo mode makes no AI calls. Comments that came with the example have a prepared answer. Your own comments only work as <code>replace "old" with "new"</code>.{' '}
-                  <button className="link" onClick={() => setDialog('settings')}>{HOSTED_DEMO ? 'Run DeckHack locally' : 'Add an API key'}</button> for real rework.
+                  <button className="link" onClick={() => setDialog('settings')}>Add an API key</button> for real rework.
                 </p>
               )}
               {log.length > 0 && (

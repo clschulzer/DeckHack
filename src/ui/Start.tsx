@@ -3,7 +3,7 @@ import { PROVIDERS } from '../ai/rework';
 import { probeDeck } from '../core/preview';
 import { addSnapshot, createProject, deleteProject, listProjects, saveComment, updateSnapshot } from '../core/store';
 import type { DeckFiles, DeckSource, Project } from '../core/types';
-import { HOSTED_DEMO, loadSettings, saveSettings, type Settings } from '../core/settings';
+import { loadSettings, saveSettings, type Settings } from '../core/settings';
 import { EXAMPLE_APPLIED, EXAMPLE_OPEN, exampleComment, exampleDeck } from '../sources/example';
 import { loadFromGithub } from '../sources/github';
 import { listTemplates, type Template } from '../sources/templates';
@@ -128,7 +128,7 @@ export function Start({ onOpen }: { onOpen: (projectId: string) => void }) {
           <div className="spacer" />
           <button className="btn ai-chip" onClick={() => setShowSettings(true)}>
             <span className={'dot ' + (aiReady ? 'ready' : 'off')} aria-hidden="true" />
-            {aiReady ? `AI: ${PROVIDERS.claude!.label.replace(/ \(.*/, '')} ready` : settings.provider === 'claude' ? 'AI: API key missing' : HOSTED_DEMO ? 'Demo · run locally for your own key' : 'AI: demo mode · add API key'}
+            {aiReady ? `AI: ${PROVIDERS.claude!.label.replace(/ \(.*/, '')} ready` : settings.provider === 'claude' ? 'AI: API key missing' : 'AI: demo mode · add API key'}
           </button>
         </div>
         <h1>Fix your pitch deck slide by slide.</h1>
