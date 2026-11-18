@@ -10,7 +10,7 @@ templates/
     deck.css        optional: any further text files (CSS, JS, SVG)
 ```
 
-The folder name is the template's id. Use lower case and hyphens. It is also the address `app/?template=my-template`.
+The folder name is the template's id. Use lower case and hyphens. It also works as a link into the running app: `http://localhost:4173/?template=my-template`.
 
 ## deckhack.json
 
