@@ -72,9 +72,8 @@ a { color: var(--action); }
 
 .brand { display: inline-flex; align-items: center; gap: 8px; font-weight: 700; letter-spacing: -.01em; font-size: 15px; }
 .brand.as-button { border: 0; background: none; cursor: pointer; padding: 4px 0; }
-/* A slide with a note pinned to its corner. */
-.brand-mark { width: 20px; height: 14px; border-radius: 3px; background: var(--action); position: relative; flex: none; }
-.brand-mark::after { content: ""; position: absolute; right: -4px; top: -4px; width: 9px; height: 9px; border-radius: 2px; background: var(--note); }
+/* The palm from the Aloha Robotics hackathon team, the same file as site/logo.svg. */
+.brand-mark { width: 22px; height: 22px; flex: none; background: url("data:image/svg+xml,%3Csvg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 64 64%22%3E%3Crect width=%2264%22 height=%2264%22 rx=%2219%22 fill=%22%23173e3b%22/%3E%3Cpath d=%22M31 51c5-11 8-21 6-32%22 fill=%22none%22 stroke=%22%23ef936f%22 stroke-width=%225%22 stroke-linecap=%22round%22/%3E%3Cg fill=%22%23f5f1e8%22%3E%3Cpath d=%22M36 23C23 9 12 18 10 31c10-8 17-10 26-8Z%22/%3E%3Cpath d=%22M36 23C36 9 49 7 57 16c-10 0-17 3-21 7Z%22/%3E%3Cpath d=%22M36 23C23 0 15 9 16 15c9 0 15 4 20 8Z%22/%3E%3Cpath d=%22M36 23C48 16 56 26 55 37c-7-8-12-11-19-14Z%22/%3E%3C/g%3E%3C/svg%3E%0A") center / contain no-repeat; }
 
 .notice { border: 1px solid var(--line); background: var(--raised); border-radius: var(--radius); padding: 8px 12px; }
 .notice.error { border-color: var(--bad); background: var(--bad-soft); }

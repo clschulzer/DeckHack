@@ -1,6 +1,8 @@
+<img src="site/logo.svg" width="72" alt="DeckHack palm logo">
+
 # DeckHack
 
-**Fix your HTML pitch deck slide by slide.** Open a deck, leave a note on each slide that needs work, apply the whole round at once, and keep every version. Built for the last night of a hackathon.
+**Fix your HTML pitch deck slide by slide.** Open a deck, leave a note on each slide that needs work, apply the whole round at once, and keep every version. Built at a hackathon, for the last night before the pitch.
 
 DeckHack is a static web app. It has no server: decks, versions and keys stay in your browser, AI calls go straight to the provider with your own API key, and saving creates a commit in your own GitHub repository. Your deck stays a plain folder of HTML, CSS and JavaScript that runs without DeckHack.
 
@@ -89,7 +91,7 @@ The test strategy is in [docs/TESTING.md](docs/TESTING.md). The evals measure wh
 
 Security model in one paragraph: deck code is untrusted, whether it comes from a link, an upload or the AI. It only ever runs in an iframe with `sandbox="allow-scripts"`, which gives it an opaque origin. It cannot read the app's storage or your API key, cannot navigate the app and cannot open windows. The app and the preview talk through `postMessage` with a per-load token.
 
-The full design, the roadmap and known risks are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md) (German).
+The full design, the roadmap and known risks are in [docs/ARCHITECTURE.md](docs/ARCHITECTURE.md).
 
 ## Your API key
 
@@ -105,4 +107,6 @@ Templates, slide adapters for more deck formats and AI providers are the easiest
 
 ## License
 
-MIT
+MIT. Made for hackathons, but you are welcome to use it for anything else: fork it, change it and adapt it to whatever you need, commercial or not, no need to ask. See [LICENSE](LICENSE).
+
+The palm logo comes from the Aloha Robotics hackathon team.
