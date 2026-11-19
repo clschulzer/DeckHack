@@ -6,7 +6,7 @@
 <title>DeckHack: built after a hackathon, for many hackathons to come</title>
 <meta name="description" content="Built after a hackathon, for many hackathons to come: an open-source review tool for HTML pitch decks. Leave a note on each slide, let the AI apply them all at once, see exactly what changed, undo anything. Runs on your laptop with your own key.">
 <meta property="og:title" content="DeckHack: built after a hackathon, for many hackathons to come!">
-<meta property="og:description" content="The pitch deck tool we wished we had on pitch night. Notes on each slide, one round of AI fixes, see exactly what changed. Open source, MIT, runs on your laptop.">
+<meta property="og:description" content="Notes on each slide, one round of AI fixes, see exactly what changed. Open source, MIT, runs on your laptop.">
 <meta property="og:image" content="media/example.png">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <style>
@@ -128,13 +128,13 @@
 
   <div class="hero">
     <div class="stickers" aria-label="Quick facts">
-      <span class="sticker hot">born on a pitch night</span>
+      <span class="sticker hot">for your next hackathon</span>
       <span class="sticker">free &amp; MIT</span>
       <span class="sticker">runs on your laptop</span>
       <span class="sticker">bring your own key</span>
     </div>
     <h1>Built after a hackathon, <em>for many hackathons to come!</em></h1>
-    <p class="lead">At our last hackathon the AI built our pitch as an HTML deck, and we spent the night before the pitch writing giant chat messages and tabbing back and forth to see what broke. So afterwards we built the tool we wished we'd had: click through the slides, drop a note wherever something's off, hit apply once, and see exactly which slides changed. Now it's yours for the next one.</p>
+    <p class="lead">A review tool for AI-built HTML pitch decks. Click through the slides, drop a note wherever something's off, apply them all at once and see exactly which slides changed.</p>
     <div class="cta">
       <a class="btn primary" href="#run">Run it on your laptop</a>
       <a class="btn" href="https://github.com/clschulzer/DeckHack">Grab it on GitHub</a>
@@ -150,7 +150,7 @@
   <div class="wrap">
     <p class="kicker">How it works</p>
     <h2>Note it, apply it, check it. Repeat until the coffee runs out.</h2>
-    <p>The lesson from our pitch night: one long monologue in the chat window doesn't work. Feedback belongs on the slide it's about.</p>
+    <p>No more monologue in the chat window. Your feedback lives right on the slide it's about.</p>
     <div class="loop">
       <div class="step">
         <div>
@@ -205,7 +205,7 @@
   <div class="wrap">
     <p class="kicker">Run it</p>
     <h2>One command, on your own laptop. That's it.</h2>
-    <p>Nobody hosts DeckHack for you, and nobody needs to. It's a static app you start locally, at this hackathon and every one after, so your key and your deck never pass through someone else's server.</p>
+    <p>Nobody hosts DeckHack for you, and nobody needs to. It's a static app you start locally, so your key and your deck never pass through someone else's server.</p>
     <pre class="run"><code>npx github:clschulzer/DeckHack   # with Node 22, opens http://localhost:4173
 
 # or with Docker
@@ -254,8 +254,8 @@ docker compose up        # then open http://localhost:8080
       <div>
         <p class="kicker" style="color:var(--coral)">Make it yours</p>
         <h2>Not at a hackathon? Use it anyway.</h2>
-        <p>DeckHack was built after a hackathon for the ones still to come, but it doesn't care what your slides are for. Thesis defense, sales deck, Friday demo, conference talk, the slides for a friend's birthday: go for it.</p>
-        <p>It's MIT licensed, so you can use it, fork it, strip it down, bolt things on and bend it to whatever you need, commercial or not. No need to ask. If you build something cool on top, we'd love to hear about it, but that's a wish, not a rule. <a href="https://github.com/clschulzer/DeckHack/blob/main/LICENSE">Read the license</a></p>
+        <p>DeckHack is made for hackathons, but it doesn't care what your slides are for. Thesis defense, sales deck, Friday demo, conference talk, the slides for a friend's birthday: go for it.</p>
+        <p>It's MIT licensed, so you can use it, fork it, strip it down, bolt things on and bend it to whatever you need, commercial or not. No need to ask. If you build something cool on top, I'd love to hear about it, but that's a wish, not a rule. <a href="https://github.com/clschulzer/DeckHack/blob/main/LICENSE">Read the license</a></p>
       </div>
     </div>
   </div>
@@ -265,7 +265,7 @@ docker compose up        # then open http://localhost:8080
   <div class="wrap">
     <p class="kicker">Open source</p>
     <h2>One hackathon started it. Every one after makes it better.</h2>
-    <p>DeckHack began with one team's pitch night. Bring back what you learned at yours: a deck that worked, a format we don't detect yet, a model you'd rather use. The easiest contributions are one folder each.</p>
+    <p>Bring what you learned at your event. The easiest contributions are one folder each.</p>
     <div class="cols">
       <div class="card"><h3>A template</h3><p>Your deck from your last event, with invented content. One folder with an HTML file and a small manifest.</p></div>
       <div class="card"><h3>A slide adapter</h3><p>Your deck format isn't detected? Teach the preview how to find its slides.</p></div>
