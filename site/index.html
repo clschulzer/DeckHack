@@ -3,10 +3,10 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1">
-<title>DeckHack: fix your hackathon pitch deck before the jury does</title>
-<meta name="description" content="Open-source review tool for HTML pitch decks, made at a hackathon for hackathons. Leave a note on each slide, let the AI apply them all at once, see exactly what changed, undo anything. Runs on your laptop with your own key.">
-<meta property="og:title" content="DeckHack: fix your hackathon pitch deck before the jury does">
-<meta property="og:description" content="Notes on each slide, one round of AI fixes, see exactly what changed. Open source, MIT, runs on your laptop.">
+<title>DeckHack: built after a hackathon, for many hackathons to come</title>
+<meta name="description" content="Built after a hackathon, for many hackathons to come: an open-source review tool for HTML pitch decks. Leave a note on each slide, let the AI apply them all at once, see exactly what changed, undo anything. Runs on your laptop with your own key.">
+<meta property="og:title" content="DeckHack: built after a hackathon, for many hackathons to come!">
+<meta property="og:description" content="The pitch deck tool we wished we had on pitch night. Notes on each slide, one round of AI fixes, see exactly what changed. Open source, MIT, runs on your laptop.">
 <meta property="og:image" content="media/example.png">
 <link rel="icon" href="logo.svg" type="image/svg+xml">
 <style>
@@ -128,17 +128,17 @@
 
   <div class="hero">
     <div class="stickers" aria-label="Quick facts">
-      <span class="sticker hot">made at a hackathon</span>
+      <span class="sticker hot">born on a pitch night</span>
       <span class="sticker">free &amp; MIT</span>
-      <span class="sticker">no server</span>
+      <span class="sticker">runs on your laptop</span>
       <span class="sticker">bring your own key</span>
     </div>
-    <h1>Fix your pitch deck <em>before the jury does.</em></h1>
-    <p class="lead">It's late, the pitch is tomorrow, and the AI-built HTML deck still has twenty little things wrong with it. Instead of writing one giant chat message and tabbing back and forth: click through the slides, drop a note wherever something's off, hit apply once, and see exactly which slides changed.</p>
+    <h1>Built after a hackathon, <em>for many hackathons to come!</em></h1>
+    <p class="lead">At our last hackathon the AI built our pitch as an HTML deck, and we spent the night before the pitch writing giant chat messages and tabbing back and forth to see what broke. So afterwards we built the tool we wished we'd had: click through the slides, drop a note wherever something's off, hit apply once, and see exactly which slides changed. Now it's yours for the next one.</p>
     <div class="cta">
       <a class="btn primary" href="#run">Run it on your laptop</a>
       <a class="btn" href="https://github.com/clschulzer/DeckHack">Grab it on GitHub</a>
-      <small>One command. Comes with an example deck full of dummy data, so you can play without a key.</small>
+      <small>One command. Comes with an example deck full of dummy data, so you can try it before your next event, no key needed.</small>
     </div>
     <figure class="stage">
       <img src="media/demo.gif" width="1280" height="800" alt="DeckHack demo: four comments on a seven-slide deck are applied in one round, the app reports that slides 1, 3, 5 and 7 changed and every other slide is unchanged, then the earlier version is shown again.">
@@ -150,7 +150,7 @@
   <div class="wrap">
     <p class="kicker">How it works</p>
     <h2>Note it, apply it, check it. Repeat until the coffee runs out.</h2>
-    <p>No more monologue in the chat window. Your feedback lives right on the slide it's about.</p>
+    <p>The lesson from our pitch night: one long monologue in the chat window doesn't work. Feedback belongs on the slide it's about.</p>
     <div class="loop">
       <div class="step">
         <div>
@@ -163,7 +163,7 @@
       <div class="step">
         <div>
           <h3><span>02</span>Apply the whole round</h3>
-          <p>The AI makes small, exact edits to your files. Then DeckHack reloads the deck, walks every slide and compares it to the version before. So if a fix on slide 8 quietly breaks slide 3, you find out now, not on stage.</p>
+          <p>The AI makes small, exact edits to your files. Then DeckHack reloads the deck, walks every slide and compares it to the version before. So if a fix on slide 8 quietly breaks slide 3, you find out at the table, not on stage.</p>
           <span class="verdict">Changed: slides 1, 3, 5, 7. Every other slide is unchanged.</span>
         </div>
         <figure class="shot"><img src="media/applied.png" width="1440" height="900" loading="lazy" alt="After a round: a result card says which slides changed, with buttons to show the version before and to undo."></figure>
@@ -187,7 +187,7 @@
 <section id="wizard">
   <div class="wrap">
     <p class="kicker">No deck yet?</p>
-    <h2>Five questions, and you've got a first draft.</h2>
+    <h2>Fresh event, empty folder? Five questions, and you've got a first draft.</h2>
     <div class="two">
       <ul class="facts">
         <li><b>How long do you get to talk?</b> 1, 3, 5 or 10 minutes turn into 4, 7, 9 or 12 slides, with the seconds you have per slide.</li>
@@ -205,7 +205,7 @@
   <div class="wrap">
     <p class="kicker">Run it</p>
     <h2>One command, on your own laptop. That's it.</h2>
-    <p>Nobody hosts DeckHack for you, and nobody needs to. It's a static app you start locally, so your key and your deck never pass through someone else's server.</p>
+    <p>Nobody hosts DeckHack for you, and nobody needs to. It's a static app you start locally, at this hackathon and every one after, so your key and your deck never pass through someone else's server.</p>
     <pre class="run"><code>npx github:clschulzer/DeckHack   # with Node 22, opens http://localhost:4173
 
 # or with Docker
@@ -254,7 +254,7 @@ docker compose up        # then open http://localhost:8080
       <div>
         <p class="kicker" style="color:var(--coral)">Make it yours</p>
         <h2>Not at a hackathon? Use it anyway.</h2>
-        <p>DeckHack was built for the last night before a pitch, but it doesn't care what your slides are for. Thesis defense, sales deck, Friday demo, conference talk, the slides for a friend's birthday: go for it.</p>
+        <p>DeckHack was built after a hackathon for the ones still to come, but it doesn't care what your slides are for. Thesis defense, sales deck, Friday demo, conference talk, the slides for a friend's birthday: go for it.</p>
         <p>It's MIT licensed, so you can use it, fork it, strip it down, bolt things on and bend it to whatever you need, commercial or not. No need to ask. If you build something cool on top, we'd love to hear about it, but that's a wish, not a rule. <a href="https://github.com/clschulzer/DeckHack/blob/main/LICENSE">Read the license</a></p>
       </div>
     </div>
@@ -264,10 +264,10 @@ docker compose up        # then open http://localhost:8080
 <section id="community">
   <div class="wrap">
     <p class="kicker">Open source</p>
-    <h2>Built at a hackathon, for the next one.</h2>
-    <p>Came out of a pitch night at a hackathon, and it should get better at every event after. The easiest contributions are one folder each.</p>
+    <h2>One hackathon started it. Every one after makes it better.</h2>
+    <p>DeckHack began with one team's pitch night. Bring back what you learned at yours: a deck that worked, a format we don't detect yet, a model you'd rather use. The easiest contributions are one folder each.</p>
     <div class="cols">
-      <div class="card"><h3>A template</h3><p>Your deck from the last event, with invented content. One folder with an HTML file and a small manifest.</p></div>
+      <div class="card"><h3>A template</h3><p>Your deck from your last event, with invented content. One folder with an HTML file and a small manifest.</p></div>
       <div class="card"><h3>A slide adapter</h3><p>Your deck format isn't detected? Teach the preview how to find its slides.</p></div>
       <div class="card"><h3>An AI provider</h3><p>One small interface: comments in, file edits out.</p></div>
     </div>
@@ -280,7 +280,7 @@ docker compose up        # then open http://localhost:8080
 
 <div class="wrap">
   <footer>
-    <span>🌴 DeckHack · MIT license · use it for whatever you like</span>
+    <span>🌴 DeckHack · built after a hackathon, for many to come · MIT license, use it for whatever you like</span>
     <a href="https://github.com/clschulzer/DeckHack">GitHub</a>
     <a href="https://github.com/clschulzer/DeckHack/blob/main/CONTRIBUTING.md">Contributing</a>
     <a href="https://github.com/clschulzer/DeckHack/blob/main/docs/ARCHITECTURE.md">Architecture</a>
