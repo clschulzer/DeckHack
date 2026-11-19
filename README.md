@@ -2,7 +2,7 @@
 
 # DeckHack
 
-**Fix your HTML pitch deck slide by slide.** Open a deck, leave a note on each slide that needs work, apply the whole round at once, and keep every version. Built at a hackathon, for the last night before the pitch.
+**Fix your HTML pitch deck slide by slide.** Open a deck, leave a note on each slide that needs work, apply the whole round at once, and keep every version. Built after a hackathon, for many hackathons to come!
 
 DeckHack is a static web app. It has no server: decks, versions and keys stay in your browser, AI calls go straight to the provider with your own API key, and saving creates a commit in your own GitHub repository. Your deck stays a plain folder of HTML, CSS and JavaScript that runs without DeckHack.
 
